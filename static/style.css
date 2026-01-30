@@ -1,0 +1,60 @@
+body{
+    background-color: #f9ecd2;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: sans-serif;
+}
+
+#middlebox{
+    background-color: #d3c8b2;
+    border-radius: 25px;
+    padding: 25px;
+    width: 60vh;
+    height: 80vh;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+#middlebox img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+#loginbox {
+    width: 100%;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #a39882;
+    background-color: #fdfdfd;
+}
+
+#prijava {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background-color: #5d5444;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#prijava:hover {
+    background-color: #3e382d;
+}
