@@ -1,0 +1,1 @@
+# Pushamo sad samo prazan file da imamo folder na gitu za simultan rad.
