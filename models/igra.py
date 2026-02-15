@@ -24,3 +24,15 @@ class RundaModel(db.Model):
     pobjednik_stiha = db.Column(db.Integer)
 
     karte = db.relationship('RundaKarte', backref='runda', lazy=True, cascade="all, delete-orphan")
+
+class RundaKarte(db.Model):
+    __tablename__ = 'runda_karte'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_runde = db.Column(db.Integer, db.ForeignKey('runda.id_runde'), nullable=False)
+    id_igraca = db.Column(db.Integer, db.ForeignKey('igrac.id'), nullable=False)
+
+    oznaka_karte = db.Column(db.String(2), nullable=False) # NPR. T9, Pk I SLIČNO
+    
+    # RUKA, IGRAČU VIDLJIVA U RUCI, TALON, ZADNJE DVIJE KARTE DO ZVANJA ADUTA, ODIGRANA, KARTA ODIGRANA
+    tip = db.Column(db.Enum('ruka', 'talon', 'odigrana'), nullable=False)
