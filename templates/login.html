@@ -4,25 +4,53 @@
     <head>
         
     <title>BELA APLIKACIJA</title>
-    <link rel="stylesheet" href="static/style.css">  
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">  
 
     </head>
 
     <body>
         <div id="middlebox">
 
-            <img src="FullLogo.png" alt="">
+            <img src="{{ url_for('static', filename='img/FullLogo.png') }}" alt="">
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
             <div id="loginbox">
-                <form action="">
+                <form method="POST" action="{{ url_for('auth.checklogin') }}">
 
-                    KORISNIČKO IME:
-                    <input type="text" name="username">
-                    LOZINKA:
-                    <input type="password" name="password">
+                    <label>KORISNIČKO IME:</label>
+                    <input type="text" name="username" required>
+
+                    <label>LOZINKA:</label>
+                    <input type="password" name="password" required>
                     <button type="submit" id="prijava">PRIJAVA</button>
 
                 </form>
+
+                <hr>
+
+                <form method="POST" action="{{ url_for('auth.register') }}">
+
+                <label>NOVI USERNAME:</label>
+                <input type="text" name="username" required>
+
+                <label>EMAIL:</label>
+                <input type="email" name="mail" required>
+
+                <label>LOZINKA:</label>
+                <input type="password" name="password" required>
+
+                <button type="submit">REGISTRACIJA</button>
+
+            </form>
             </div>
 
         </div>

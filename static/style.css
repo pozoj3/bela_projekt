@@ -43,7 +43,7 @@ input {
     background-color: #fdfdfd;
 }
 
-#prijava {
+button {
     margin-top: 15px;
     padding: 12px;
     border-radius: 8px;
@@ -52,9 +52,9 @@ input {
     color: white;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background-color 0.3s;
 }
 
-#prijava:hover {
+button:hover {
     background-color: #3e382d;
 }
