@@ -23,10 +23,16 @@ class Karta:
         }
 
         self.broj_za_zvanje = vrijednosti_za_zvanje[self.broj]
+        
 
 
     def __repr__(self):
         return f"Karta(boja = '{self.boja}', broj = '{self.broj}')"
+    
+    def __eq__(self, druga_karta):
+        if isinstance(druga_karta, Karta):
+            return self.oznaka == druga_karta.oznaka
+        return False
         
 
     def bodovi(self, adut):
