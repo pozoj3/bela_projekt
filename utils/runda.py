@@ -260,6 +260,13 @@ class Runda:
         self.adut = adut
 
 
+
+    
+    def tijek_runde(self, prvi_na_redu):
+        pass
+
+
+
             
             
         
