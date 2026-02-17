@@ -27,7 +27,8 @@ class Karta:
 
 
     def __repr__(self):
-        return f"Karta(boja = '{self.boja}', broj = '{self.broj}')"
+        #return f"Karta(boja = '{self.boja}', broj = '{self.broj}')"
+        return f"{self.boja}{self.broj}"
     
     def __eq__(self, druga_karta):
         if isinstance(druga_karta, Karta):
@@ -83,7 +84,10 @@ class Karta:
         elif self.boja == adut and druga_karta.boja == adut:
             return jacina_adut[self.broj] > jacina_adut[druga_karta.broj]
         else:
-            return jacina[self.broj] > jacina[druga_karta.broj]
+            if self.boja == druga_karta.boja:
+                return jacina[self.broj] > jacina[druga_karta.broj]
+            else:
+                return False #tu je pretpostavka da nemres baciti kartu druge boje
 
 
     

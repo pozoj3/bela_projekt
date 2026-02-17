@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, session, flash,
 from database import db
 from utils.karta import Karta
 from utils.runda import Runda
-from models.igra import Igra, RundaModel
+from models.igra import Igra, RundaModel, RundaKarte
 from models.soba import Soba
 from models.igrac import Igrac
 
@@ -43,9 +43,32 @@ def pokreni_igru(id_sobe):
     db.session.add(nova_runda_db)
     db.session.commit()
 
+    mapa_igraca = {
+        1: soba.igrac1_id,
+        2: soba.igrac2_id,
+        3: soba.igrac3_id,
+        4: soba.igrac4_id
+    }
 
-    #tu treba za spremanje karti
+    for logika_id, karte_lista in nova_logika.ruke.items():
+        pravi_id = mapa_igraca[logika_id]
 
+        for karta in karte_lista:
+            nova_karta_db = RundaKarte(id_runde = nova_runda_db.id_runde,
+                    id_igraca = pravi_id, oznaka_karte = karta.oznaka, tip = "ruka")
+            
+        db.session.add(nova_karta_db)
+    
+    for logika_id, karte_lista in nova_logika.taloni.items():
+        pravi_id = mapa_igraca[logika_id]
+
+        for karta in karte_lista:
+            nova_karta_db = RundaKarte(id_runde = nova_runda_db.id_runde,
+                id_igraca = pravi_id, oznaka_karte = karta.oznaka, tip = "talon")
+            db.session.add(nova_karta_db)
+
+    db.session.commit()
+    
     return jsonify({"status": "uspjeh", "id_igre" : nova_igra.id_igre})
 
 
@@ -61,9 +84,8 @@ def odigraj_potez():
     uspjeh = logika_runde.baci_kartu(id_igraca, karta_objekt)
 
     if uspjeh:
-        # A) Nađi tu kartu u bazi i promijeni joj status iz 'ruka' u 'stol'
-        # karta_db = RundaKarte.query.filter_by(runda_id=runda_db.id, oznaka=oznaka_karte).first()
-        # karta_db.lokacija = 'stol'
+        karta_db = RundaKarte.query.filter_by(id_runde = runda_db.id_runde,
+                id_igraca = id_igraca, oznaka_karte = oznaka_karte).first()
 
         # B) Provjeri je li gotov štih (4 karte na stolu)
         if len(logika_runde.karte_na_stolu) == 4: # Ovo provjeravaš nakon dodavanja
