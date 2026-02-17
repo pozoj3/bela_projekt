@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from config import Config
 from database import db
 
@@ -17,3 +17,7 @@ app.register_blueprint(lobby_bp)
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+@app.route('/')
+def index():
+    return render_template("login.html")

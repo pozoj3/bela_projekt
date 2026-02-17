@@ -4,14 +4,14 @@
     <head>
         
     <title>BELA APLIKACIJA</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">  
+    <link rel="stylesheet" href="static/style.css">  
 
     </head>
 
     <body>
         <div id="middlebox">
 
-            <img src="{{ url_for('static', filename='img/FullLogo.png') }}" alt="">
+            <img src="static/FullLogo.png" alt="">
 
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
