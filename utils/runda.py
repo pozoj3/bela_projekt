@@ -45,6 +45,9 @@ class Runda:
 
         self.karte_na_stolu = []
         self.adut = ""
+        self.broj_stiha = 0
+        self.osvojeni_stihovi_mi = 0
+        self.osvojeni_stihovi_vi = 0
 
         self.bodovi_mi = 0
         self.bodovi_vi = 0
@@ -112,10 +115,36 @@ class Runda:
     def ime_zvanja_4(self, tip_karti, rjecnik):
         rjecnik[tip_karti] = ["H"+ tip_karti, "K"+ tip_karti, "P"+ tip_karti, "T"+ tip_karti]
 
-    def ime_zvanja_skala(self, duljina, boja, prva_u_zvanju, rjecnik):
-        rjecnik[prva_u_zvanju.broj_za_zvanje] = []
-       # for i in range(duljina):
-          #  rjecnik[prva_u_zvanju.broj_za_zvanje].append() #ovo dalje treba se oznake karti tu napiseju
+    def ime_zvanja_skala(self, duljina, prva_u_zvanju, rjecnik):
+        broj_u_oznaku = {
+            7: "7",
+            8: "8",
+            9: "9",
+            10: "c",
+            11: "d",
+            12: "b",
+            13: "k",
+            14: "a"
+        }
+
+        boja = prva_u_zvanju.boja
+
+        lista_karti_zvanja = []
+        pocetni_broj = prva_u_zvanju.broj_za_zvanje
+
+        for i in range(duljina):
+            trenutni_broj = pocetni_broj + i
+            if trenutni_broj in broj_u_oznaku:
+                oznaka_broja = broj_u_oznaku[trenutni_broj]
+                cijela_oznaka = boja + oznaka_broja
+                lista_karti_zvanja.append(cijela_oznaka)
+            
+        indeks = 1
+        kljuc = f"S{indeks}"
+        while kljuc in rjecnik:
+            indeks += 1
+            kljuc = f"S{indeks}"
+        rjecnik[kljuc] = lista_karti_zvanja
 
     def zvanja_karte(self, br_igraca):
         #prvo gledamo za 4 iste
@@ -163,39 +192,104 @@ class Runda:
             if duljina_niza >= 3:
                 if duljina_niza == 3:
                     bodovi += 20
-                    self.ime_zvanja_skala(duljina_niza, trenutna.boja, trenutna, temp_sva)
+                    self.ime_zvanja_skala(duljina_niza, trenutna, temp_sva)
                 elif duljina_niza == 4:
                     bodovi += 50
-                    self.ime_zvanja_skala(duljina_niza, trenutna.boja, trenutna, temp_sva)
+                    self.ime_zvanja_skala(duljina_niza, trenutna, temp_sva)
                 elif duljina_niza >= 5 and duljina_niza < 8:
                     bodovi += 100
-                    self.ime_zvanja_skala(duljina_niza, trenutna.boja, trenutna, temp_sva)
+                    self.ime_zvanja_skala(duljina_niza, trenutna, temp_sva)
                 elif duljina_niza == 8:
                     bodovi = 1001
-                    self.ime_zvanja_skala(duljina_niza, trenutna.boja, trenutna, temp_sva)
+                    self.ime_zvanja_skala(duljina_niza, trenutna, temp_sva)
                 i += duljina_niza
             else:
                 i += 1
         
         self.bodovi_zvanja[br_igraca] = bodovi
+        self.popis_zvanja[br_igraca] = temp_sva
 
     def validna_zove(self):
-        pass
+        vrijednosti_za_zvanje_skala = {
+            "7": 7,
+            "8": 8,
+            "9": 9,
+            "c": 10,
+            "d": 11,
+            "b": 12,
+            "k": 13,
+            "a": 14
+        }
+        vrijednosti_za_zvanje_4 = {
+            "7": 7,
+            "8": 8,
+            "9": 16,
+            "c": 15,
+            "d": 17,
+            "b": 12,
+            "k": 13,
+            "a": 14
+        }
+                #tip zvanja (belot (3), cetiri (2) , skala (1), nullzvanje (0)), broj karte, duljina zvanja
+                #znaci npr [cetiri, 12, 4] -> to su 4 kralja, jer je kralj "==" 12
+                #[skala, 10, 4] -> to je 10, decko, baba, kralj
+    
+        najjace_od_svih_zvanja = [0,0,0,0]
+        for id_igraca, lista_zvanja in self.popis_zvanja.items():
+            for ime_zvanja, samo_zvanje in lista_zvanja.items():
+                temp1 = 0
+                temp2 = 0
+                temp3 = len(samo_zvanje)
+                temp4 = id_igraca
+                if temp3 == 8:
+                    temp1 = 3
+                elif ime_zvanja in ["7","8","9","c","d","b","k","a"]:
+                    temp1 = 2
+                    temp2 = vrijednosti_za_zvanje_4[samo_zvanje[0][1]] #ovo je jer je samo_zvanje ["Hb","Kb","Pb","Tb"]
+                elif "S" in ime_zvanja:
+                    temp1 = 1
+                    temp2 = vrijednosti_za_zvanje_skala[samo_zvanje[0][1]]
+                
+                if(temp1 > najjace_od_svih_zvanja[0]):
+                    najjace_od_svih_zvanja = [temp1,temp2,temp3,temp4]
+                elif(temp1 == najjace_od_svih_zvanja[0] and temp1 == 2):
+                    if(temp2 > najjace_od_svih_zvanja[1]):
+                        najjace_od_svih_zvanja = [temp1,temp2,temp3,temp4]
+                elif(temp1 == najjace_od_svih_zvanja[0] and temp1 == 1):
+                    if(temp3 > najjace_od_svih_zvanja[2]):
+                        najjace_od_svih_zvanja = [temp1,temp2,temp3,temp4]
+                    elif(temp3 == najjace_od_svih_zvanja[2]):
+                        if(temp2 > najjace_od_svih_zvanja[1]):
+                            najjace_od_svih_zvanja = [temp1,temp2,temp3,temp4]
+                        elif(temp2 == najjace_od_svih_zvanja[1]):
+                            if(self.red_igranja.index(temp4) > self.red_igranja.index(najjace_od_svih_zvanja[3])):
+                                najjace_od_svih_zvanja = [temp1,temp2,temp3,temp4]
+                elif(temp1 == najjace_od_svih_zvanja[0] and temp1 == 3):
+                    if(self.red_igranja.index(temp4) > self.red_igranja.index(najjace_od_svih_zvanja[3])):
+                                najjace_od_svih_zvanja = [temp1,temp2,temp3,temp4]
+
+        if(najjace_od_svih_zvanja[3] % 2 == 1):
+            self.popis_zvanja[2] = {}
+            self.popis_zvanja[4] = {}
+            self.bodovi_zvanja[2] = 0
+            self.bodovi_zvanja[4] = 0
+        else:
+            self.popis_zvanja[1] = {}
+            self.popis_zvanja[3] = {}
+            self.bodovi_zvanja[1] = 0
+            self.bodovi_zvanja[3] = 0
 
 
-    def jel_ima_belu(self, br_igraca):
+    def jel_ima_belu(self, br_igraca, pokusna_karta):
         
         baba = Karta(self.adut + "b")
         kralj = Karta(self.adut + "k")
-        if baba in self.ruke[br_igraca] and kralj in self.ruke[br_igraca]:
-            return True
-        return False
+        if pokusna_karta == baba or pokusna_karta == kralj:
+            if baba in self.ruke[br_igraca] and kralj in self.ruke[br_igraca]:
+                self.bodovi_zvanja[br_igraca] += 20
         
-    
+        
 
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #!!! ovo tu treba popraviti jer sad je redosled bacanja krivi !!!
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     #gleda jel smo postivali boju (prvu bacenu ili aduta)
     def postivanje_boje(self, pokusana_karta, br_igraca):
@@ -267,6 +361,7 @@ class Runda:
         #br_igraca = self.red_igranja[len(self.karte_na_stolu) - 1] ovo valda ne treba
 
         if self.postivanje_boje(pokusana_karta, br_igraca) and self.postivanje_ibera(pokusana_karta, br_igraca) and pokusana_karta in self.ruke[br_igraca] and self.jel_na_redu(br_igraca):
+            self.jel_ima_belu(br_igraca, pokusana_karta)
             self.karte_na_stolu.append(pokusana_karta)
             self.bacene_karte[br_igraca].append(pokusana_karta)
             self.ruke[br_igraca].remove(pokusana_karta)
@@ -277,16 +372,22 @@ class Runda:
 
 
     def pokupi_stih(self):
+        self.broj_stiha += 1
         najjaca = self.trenutna_najjaca()
         id_najjace = self.karte_na_stolu.index(najjaca)
         id_igraca = self.red_igranja[id_najjace]
 
         bodovi_stiha = sum(karta.bodovi(self.adut) for karta in self.karte_na_stolu)
-
+        if self.broj_stiha == 8:
+            bodovi_stiha += 10
+            #self.broj_stiha = 0
+        
         if id_igraca % 2 == 1:
             self.bodovi_mi += bodovi_stiha
+            self.osvojeni_stihovi_mi += 1
         else:
             self.bodovi_vi += bodovi_stiha
+            self.osvojeni_stihovi_vi += 1
 
         self.red_igranja = [id_igraca, self.pomoca_za_red(id_igraca+1),self.pomoca_za_red(id_igraca+2), self.pomoca_za_red(id_igraca+3)]  
         self.karte_na_stolu = []
@@ -295,16 +396,21 @@ class Runda:
     def konacni_bodovi(self):
         ukupna_igra = 162 + sum(bodovi.value() for bodovi in self.bodovi_zvanja)
 
-        potrebno = ukupna_igra // 2  + 1
-        
-        if(self.igrac_koji_zove % 2 == 1):
-            if(self.bodovi_mi < potrebno):
-                self.bodovi_mi = 0
-                self.bodovi_vi = ukupna_igra
+        potrebno = ukupna_igra / 2  + 1
+
+        if(self.osvojeni_stihovi_vi == 0):
+            self.bodovi_mi = ukupna_igra + 100
+        elif(self.osvojeni_stihovi_mi == 0):
+            self.bodovi_vi = ukupna_igra + 100
         else:
-            if(self.bodovi_vi < potrebno):
-                self.bodovi_mi = ukupna_igra
-                self.bodovi_vi = 0
+            if(self.igrac_koji_zove % 2 == 1):
+                if(self.bodovi_mi < potrebno):
+                    self.bodovi_mi = 0
+                    self.bodovi_vi = ukupna_igra
+            else:
+                if(self.bodovi_vi < potrebno):
+                    self.bodovi_mi = ukupna_igra
+                    self.bodovi_vi = 0
 
 
     def zovi_aduta(self, adut, igrac_koji_zove):
@@ -316,189 +422,3 @@ class Runda:
     
     def tijek_runde(self, prvi_na_redu):
         pass
-
-
-
-            
-            
-        
-
-#jos treba dodati logiku za zvanja i za igranje
-
-
-"""if __name__ == "__main__":
-    print("=== POČETAK TESTA PODRAVSKE BELE ===")
-    
-    # 1. KREIRANJE RUNDE 
-    # PROMJENA: Konstruktor je sada prazan ()
-    runda = Runda()
-    
-    # 2. MIJEŠANJE
-    # PROMJENA: Sada ovdje šaljemo tko je prvi na redu (npr. igrač 1)
-    runda.promjesaj_karte(prvi_na_redu=1)
-    print("Karte promiješane i red igranja postavljen.")
-
-    # 3. ZVANJE ADUTA (Simulacija: Igrač 1 zove Pik)
-    print("\n--- FAZA: ZVANJE ADUTA ---")
-    odabrani_adut = "P"
-    runda.zovi_aduta(odabrani_adut, igrac_koji_zove=1)
-    print(f"Adut je: {runda.adut}")
-
-    # 4. DIJELJENJE OSTATKA (TALONA)
-    print("\n--- FAZA: UZIMANJE TALONA ---")
-    
-    # Simuliramo da svi uzimaju talone
-    # Moramo paziti da su liste inicijalizirane u promjesaj_karte
-    for i in range(1, 5):
-        # Spajamo ruku i talon
-        runda.ruke[i] = runda.ruke[i] + runda.taloni[i]
-        runda.taloni[i] = [] # Praznimo talon
-        
-        # Sortiramo da vidimo ljepše
-        runda.sortiraj_ruku(i)
-        print(f"Ruka Igrač {i}: {runda.ruke[i]}")
-
-    # 5. IGRANJE JEDNOG ŠTIHA
-    print("\n--- FAZA: IGRANJE ŠTIHA (SIMULACIJA) ---")
-    
-    # Koristimo red_igranja koji je nastao u promjesaj_karte
-    for igrac_na_potezu in runda.red_igranja:
-        print(f"\nNa redu je Igrač {igrac_na_potezu}...")
-        
-        uspjesno_bacio = False
-        
-        # 1. POKUŠAJ PO PRAVILIMA
-        # Kopiramo listu [:] da ne zbunimo petlju brisanjem elemenata
-        for karta_u_ruci in runda.ruke[igrac_na_potezu][:]:
-            # Tvoja nova funkcija baci_kartu sada koristi self.jel_na_redu unutar sebe
-            # pa joj ne moramo ništa posebno slati osim karte i ID-a
-            if runda.baci_kartu(karta_u_ruci, igrac_na_potezu):
-                print(f"-> Igrač {igrac_na_potezu} baca (po pravilima): {karta_u_ruci}")
-                uspjesno_bacio = True
-                break 
-        
-        # 2. POKUŠAJ NA SILU (FALLBACK)
-        # Ako logika ibera/boje ne dopušta ništa (npr. previše stroga pravila), bacamo prvu
-        if not uspjesno_bacio:
-            print(f"⚠️ Nema validne karte po trenutnoj logici! Forsiram prvu kartu...")
-            
-            if len(runda.ruke[igrac_na_potezu]) > 0:
-                prva_karta = runda.ruke[igrac_na_potezu][0]
-                
-                # Ručno ažuriranje stanja (zaobilazimo baci_kartu provjere)
-                runda.karte_na_stolu.append(prva_karta)
-                runda.bacene_karte[igrac_na_potezu].append(prva_karta)
-                runda.ruke[igrac_na_potezu].remove(prva_karta)
-                
-                print(f"-> Igrač {igrac_na_potezu} baca (prisilno): {prva_karta}")
-            else:
-                print("GREŠKA: Igrač nema karata u ruci!")
-
-    # 6. KUPLJENJE ŠTIHA
-    print(f"\nKarte na stolu: {runda.karte_na_stolu}")
-    print("\n--- FAZA: KUPLJENJE ŠTIHA ---")
-    
-    try:
-        runda.pokupi_stih()
-        print(f"Bodovi MI: {runda.bodovi_mi}")
-        print(f"Bodovi VI: {runda.bodovi_vi}")
-        print(f"Novi red igranja za idući štih: {runda.red_igranja}")
-    except Exception as e:
-        print(f"Greška kod kupljenja štiha: {e}")
-        print("(Vjerojatno greška u indeksiranju unutar pokupi_stih funkcije)")
-    
-    print("\n=== KRAJ TESTA ===")"""
-
-
-
-from runda import Runda
-from karta import Karta
-import random
-import time
-
-def ispisi_razdvajac(naslov):
-    print(f"\n{'='*20} {naslov} {'='*20}")
-
-if __name__ == "__main__":
-    ispisi_razdvajac("POČETAK SIMULACIJE")
-
-    # 1. INICIJALIZACIJA
-    runda = Runda()
-    prvi_igrac = random.randint(1, 4)
-    runda.promjesaj_karte(prvi_na_redu=prvi_igrac)
-    
-    # 2. RANDOM ADUT
-    aduti = ["H", "K", "P", "T"]
-    odabrani_adut = random.choice(aduti)
-    runda.zovi_aduta(odabrani_adut, igrac_koji_zove=prvi_igrac)
-    
-    print(f"Prvi igra: Igrač {prvi_igrac}")
-    print(f"Odabrani adut: {odabrani_adut}")
-
-    # 3. UZIMANJE TALONA I SORTIRANJE
-    for i in range(1, 5):
-        runda.ruke[i] += runda.taloni[i]
-        runda.taloni[i] = [] 
-        runda.sortiraj_ruku(i)
-
-    # 4. IGRA (8 ŠTIHOVA)
-    for broj_stiha in range(1, 9):
-        ispisi_razdvajac(f"ŠTIH BROJ {broj_stiha}")
-        
-        red_igranja = runda.red_igranja
-        print(f"Redoslijed: {red_igranja}")
-
-        # --- BACANJE KARATA (Svi bacaju) ---
-        for igrac_id in red_igranja:
-            print(f"\n🔵 Na redu: Igrač {igrac_id}")
-            
-            bacio_kartu = False
-            
-            # A) POKUŠAJ PO PRAVILIMA
-            for karta in runda.ruke[igrac_id][:]:
-                if runda.baci_kartu(karta, igrac_id):
-                    print(f"✅ Igrač {igrac_id} baca: {karta}")
-                    bacio_kartu = True
-                    break 
-            
-            # B) POKUŠAJ NA SILU
-            if not bacio_kartu:
-                if len(runda.ruke[igrac_id]) > 0:
-                    karta_na_silu = runda.ruke[igrac_id][0]
-                    runda.karte_na_stolu.append(karta_na_silu)
-                    runda.bacene_karte[igrac_id].append(karta_na_silu)
-                    runda.ruke[igrac_id].remove(karta_na_silu)
-                    print(f"⚠️ FORCE -> Igrač {igrac_id} baca: {karta_na_silu}")
-
-        # --- ISPIS STANJA RUKU (SAD JE OVDJE, NAKON SVIH BACANJA) ---
-        print("\n   --- STANJE RUKU NAKON ŠTIHA ---")
-        for i in range(1, 5):
-            ruka_str = [k.oznaka for k in runda.ruke[i]] 
-            print(f"   Igrač {i}: {ruka_str}")
-        print("   ------------------------------")
-
-        # KRAJ ŠTIHA - KUPLJENJE
-        print(f"\nStol: {[k.oznaka for k in runda.karte_na_stolu]}")
-        
-        try:
-            runda.pokupi_stih()
-            pobjednik = runda.red_igranja[0]
-            print(f"🏆 Štih nosi Igrač {pobjednik}")
-            
-            # DODATAK: Bodovi za zadnji štih (Zadnja 10)
-            # Ovo tvoja runda.py trenutno ne radi automatski, pa dodajem ručno ovdje
-            if broj_stiha == 8:
-                print("🏁 ZADNJA! (+10 bodova)")
-                if pobjednik % 2 != 0:
-                    runda.bodovi_mi += 10
-                else:
-                    runda.bodovi_vi += 10
-
-        except Exception as e:
-            print(f"❌ Greška: {e}")
-
-    # 5. REZULTATI
-    ispisi_razdvajac("KRAJ IGRE")
-    print(f"Bodovi MI: {runda.bodovi_mi}")
-    print(f"Bodovi VI: {runda.bodovi_vi}")
-    print(f"Ukupno: {runda.bodovi_mi + runda.bodovi_vi} (Mora biti 162 ako nema zvanja)")

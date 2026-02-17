@@ -1,112 +1,128 @@
 from runda import Runda
 from karta import Karta
+import random
+import time
 
-# Pomoćna funkcija za ljepši ispis
-def run_test(naziv, ocekivano, rezultat):
-    status = "✅ PROŠLO" if ocekivano == rezultat else "❌ PALO"
-    print(f"{status} | {naziv}")
-    print(f"   -> Očekivano: {ocekivano}, Dobiveno: {rezultat}\n")
+def ispisi_razdvajac(naslov):
+    print(f"\n{'='*20} {naslov} {'='*20}")
 
 if __name__ == "__main__":
-    print("=== TESTIRANJE PRAVILA (NOVA KLASA) ===\n")
+    ispisi_razdvajac("POČETAK SIMULACIJE (ZVANJA + BELA)")
 
-    # 1. INICIJALIZACIJA (Prilagođeno novoj klasi)
+    # 1. INICIJALIZACIJA
     runda = Runda()
-    runda.promjesaj_karte(prvi_na_redu=1) # Bitno da se kreiraju liste u rječnicima
+    prvi_igrac = random.randint(1, 4)
+    runda.promjesaj_karte(prvi_na_redu=prvi_igrac)
     
-    # Postavljamo aduta za test (Herc)
-    runda.adut = "H" 
-    print(f"Postavljen adut: {runda.adut} (Herc)\n")
+    # 2. RANDOM ADUT
+    aduti = ["H", "K", "P", "T"]
+    odabrani_adut = random.choice(aduti)
+    runda.zovi_aduta(odabrani_adut, igrac_koji_zove=prvi_igrac)
+    
+    print(f"Prvi igra: Igrač {prvi_igrac}")
+    print(f"Odabrani adut: {odabrani_adut}")
 
-    # ==========================================
-    # 1. TESTIRANJE: POŠTIVANJE BOJE
-    # ==========================================
-    print("---------------------------------------")
-    print("--- 1. TESTIRANJE POŠTIVANJA BOJE ---")
-    print("---------------------------------------\n")
+    # 3. UZIMANJE TALONA, SORTIRANJE I POČETNA ZVANJA
+    print("\n--- OBRADA ZVANJA (PRIJE IGRE) ---")
+    
+    for i in range(1, 5):
+        runda.otkrij_karte(i) 
+        runda.sortiraj_ruku(i)
+        runda.zvanja_karte(i) # Provjeri ima li nize ili 4 iste
+        
+        if runda.bodovi_zvanja[i] > 0:
+            print(f"Igrač {i} prijavljuje: {runda.popis_zvanja[i]} ({runda.bodovi_zvanja[i]} bodova)")
+    
+    # Validacija zvanja (tko je jači)
+    runda.validna_zove()
+    
+    print("\n--- PRIZNATA ZVANJA ---")
+    ukupno_zvanja_mi = runda.bodovi_zvanja[1] + runda.bodovi_zvanja[3]
+    ukupno_zvanja_vi = runda.bodovi_zvanja[2] + runda.bodovi_zvanja[4]
+    print(f"MI: {ukupno_zvanja_mi} | VI: {ukupno_zvanja_vi}")
 
-    # SCENARIO 1: Imaš boju i baciš je -> TRUE
-    # Stol: Pik 10
-    # Ruka: Pik 7, Tref 8
-    # Potez: Pik 7
-    runda.karte_na_stolu = [Karta("Pc")] 
-    runda.ruke[1] = [Karta("P7"), Karta("T8")] 
-    rezultat = runda.postivanje_boje(Karta("P7"), br_igraca=1)
-    run_test("Igrač ima boju i poštuje ju", True, rezultat)
+    # 4. IGRA (8 ŠTIHOVA)
+    for broj_stiha in range(1, 9):
+        ispisi_razdvajac(f"ŠTIH BROJ {broj_stiha}")
+        
+        # --- A) ISPIS RUKU ---
+        print("   --- RUKU PRIJE ŠTIHA ---")
+        for i in range(1, 5):
+            ruka_str = [k.oznaka for k in runda.ruke[i]]
+            oznaka = ">>" if i == runda.red_igranja[0] else "  "
+            print(f"   {oznaka} Igrač {i}: {ruka_str}")
+        print("   ------------------------\n")
 
-    # SCENARIO 2: Imaš boju, ali bacaš drugu (Renons) -> FALSE
-    # Stol: Pik 10
-    # Ruka: Pik 7, Tref 8
-    # Potez: Tref 8
-    runda.karte_na_stolu = [Karta("Pc")] 
-    runda.ruke[1] = [Karta("P7"), Karta("T8")] 
-    rezultat = runda.postivanje_boje(Karta("T8"), br_igraca=1)
-    run_test("Igrač ima boju ali baca drugu", False, rezultat)
+        red_igranja = runda.red_igranja
+        print(f"Redoslijed: {red_igranja}")
 
-    # SCENARIO 3: Nemaš boju, imaš aduta, sječeš adutom -> TRUE
-    # Stol: Pik 10
-    # Ruka: Herc 8 (Adut), Tref 8
-    # Potez: Herc 8
-    runda.karte_na_stolu = [Karta("Pc")] 
-    runda.ruke[1] = [Karta("H8"), Karta("T8")] 
-    rezultat = runda.postivanje_boje(Karta("H8"), br_igraca=1)
-    run_test("Igrač nema boju, sječe adutom", True, rezultat)
+        # --- B) BACANJE KARATA ---
+        for igrac_id in red_igranja:
+            bacio_kartu = False
+            
+            # --- DETEKCIJA BELE (1. DIO) ---
+            # Zapamtimo koliko bodova zvanja igrač ima PRIJE bacanja
+            stari_bodovi_zvanja = runda.bodovi_zvanja[igrac_id]
+            
+            # 1. POKUŠAJ PO PRAVILIMA
+            for karta in runda.ruke[igrac_id][:]:
+                if runda.baci_kartu(karta, igrac_id):
+                    print(f"✅ Igrač {igrac_id} baca: {karta}")
+                    
+                    # --- DETEKCIJA BELE (2. DIO) ---
+                    # Provjerimo ima li sada više bodova nego prije
+                    novi_bodovi_zvanja = runda.bodovi_zvanja[igrac_id]
+                    if novi_bodovi_zvanja > stari_bodovi_zvanja:
+                        # Ako su bodovi porasli, znači da je zvao Belu!
+                        print(f"🔔 🔔 🔔 IGRAČ {igrac_id} ZOVE BELU! (+20) 🔔 🔔 🔔")
+                    
+                    bacio_kartu = True
+                    break 
+            
+            # 2. POKUŠAJ NA SILU (Fallback)
+            if not bacio_kartu:
+                if len(runda.ruke[igrac_id]) > 0:
+                    karta_na_silu = runda.ruke[igrac_id][0]
+                    # Ovdje nema detekcije bele jer 'baci_kartu' nije uspio
+                    runda.karte_na_stolu.append(karta_na_silu)
+                    runda.bacene_karte[igrac_id].append(karta_na_silu)
+                    runda.ruke[igrac_id].remove(karta_na_silu)
+                    print(f"⚠️ FORCE -> Igrač {igrac_id} baca: {karta_na_silu}")
 
-    # SCENARIO 4: Nemaš boju, imaš aduta, ALI bacaš škart -> FALSE
-    # Stol: Pik 10
-    # Ruka: Herc 8 (Adut), Tref 8
-    # Potez: Tref 8
-    runda.karte_na_stolu = [Karta("Pc")] 
-    runda.ruke[1] = [Karta("H8"), Karta("T8")] 
-    rezultat = runda.postivanje_boje(Karta("T8"), br_igraca=1)
-    run_test("Igrač ne sječe iako ima aduta", False, rezultat)
+        # --- C) OBRADA ŠTIHA ---
+        print(f"\nStol: {[k.oznaka for k in runda.karte_na_stolu]}")
+        
+        try:
+            runda.pokupi_stih()
+            pobjednik = runda.red_igranja[0]
+            print(f"🏆 Štih nosi Igrač {pobjednik}")
+            
+            if broj_stiha == 8:
+                print("🏁 ZADNJA (+10 bodova)")
 
-    # SCENARIO 5: Nemaš boju, NEMAŠ aduta, bacaš bilo što -> TRUE
-    # Stol: Pik 10
-    # Ruka: Karo 9, Tref 8
-    # Potez: Tref 8
-    runda.karte_na_stolu = [Karta("Pc")] 
-    runda.ruke[1] = [Karta("K9"), Karta("T8")] 
-    rezultat = runda.postivanje_boje(Karta("T8"), br_igraca=1)
-    run_test("Igrač nema ni boju ni aduta (škart)", True, rezultat)
+            print(f"📊 BODOVI IGRE -> MI: {runda.bodovi_mi} | VI: {runda.bodovi_vi}")
 
+        except Exception as e:
+            print(f"❌ Greška u pokupi_stih: {e}")
 
-    # ==========================================
-    # 2. TESTIRANJE: POŠTIVANJE IBERA
-    # ==========================================
-    print("---------------------------------------")
-    print("--- 2. TESTIRANJE POŠTIVANJA IBERA ---")
-    print("---------------------------------------\n")
+    # 5. KONAČNI REZULTATI
+    ispisi_razdvajac("KRAJ RUNDE")
+    
+    # Ponovno dohvaćamo zvanja jer se BELA naknadno dodala u runda.bodovi_zvanja
+    ukupno_zvanja_mi = runda.bodovi_zvanja[1] + runda.bodovi_zvanja[3]
+    ukupno_zvanja_vi = runda.bodovi_zvanja[2] + runda.bodovi_zvanja[4]
 
-    # SCENARIO 1: Prva karta na stolu (prazan stol) -> TRUE
-    runda.karte_na_stolu = []
-    rezultat = runda.postivanje_ibera(Karta("H8"))
-    run_test("Prva karta na stolu", True, rezultat)
-
-    # SCENARIO 2: Bacaš jaču kartu od one na stolu -> TRUE
-    # Stol: Pik 9
-    # Potez: Pik 10 (c)
-    runda.karte_na_stolu = [Karta("P9")]
-    rezultat = runda.postivanje_ibera(Karta("Pc"))
-    run_test("Igrač baca jaču kartu (ibera)", True, rezultat)
-
-    # SCENARIO 3: Bacaš slabiju kartu od one na stolu -> FALSE (Po tvojoj logici)
-    # Stol: Pik 10 (c)
-    # Potez: Pik 7
-    runda.karte_na_stolu = [Karta("Pc")]
-    rezultat = runda.postivanje_ibera(Karta("P7"))
-    run_test("Igrač baca slabiju kartu (zabranjeno u tvojoj logici)", False, rezultat)
-
-    # SCENARIO 4: Adut na ne-aduta (Mora biti jače) -> TRUE
-    # Stol: Pik 10
-    # Potez: Herc 7 (Adut)
-    runda.karte_na_stolu = [Karta("Pc")]
-    rezultat = runda.postivanje_ibera(Karta("H7"))
-    run_test("Rezanje adutom je 'iber'", True, rezultat)
-
-    # SCENARIO 5: Adut na slabiji adut -> TRUE
-    # Stol: Herc 9 (14)
-    # Potez: Herc Dečko (20)
-    runda.karte_na_stolu = [Karta("H9")]
-    rezultat = runda.postivanje_ibera(Karta("Hd"))
-    run_test("Iber u adutu (Dečko na 9)", True, rezultat)
+    konacni_mi = runda.bodovi_mi + ukupno_zvanja_mi
+    konacni_vi = runda.bodovi_vi + ukupno_zvanja_vi
+    
+    print(f"Bodovi iz igre (MI): {runda.bodovi_mi}")
+    print(f"Bodovi iz zvanja (MI): {ukupno_zvanja_mi} (Zvanja + Bela)")
+    print(f"--- UKUPNO MI: {konacni_mi} ---")
+    
+    print("-" * 20)
+    
+    print(f"Bodovi iz igre (VI): {runda.bodovi_vi}")
+    print(f"Bodovi iz zvanja (VI): {ukupno_zvanja_vi} (Zvanja + Bela)")
+    print(f"--- UKUPNO VI: {konacni_vi} ---")
+    
+    print(f"\nSVEUKUPNO: {konacni_mi + konacni_vi}")
