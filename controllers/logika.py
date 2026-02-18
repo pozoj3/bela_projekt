@@ -9,21 +9,81 @@ from models.igrac import Igrac
 logika_bp = Blueprint('logika', __name__)
 
 
-def dohvati_rundu_objekt(id_igre):
-    igra_db = Igra.query.get(id_igre)
+#vraca rjecnik {logicki_id : stvarni_db_id} i obrnuti rjecnik
+def dohvati_mapu_igraca(id_igre):
+    igra = Igra.query.get(id_igre)
+    if not igra:
+        return None, None
+    
+    soba = Soba.query.get(igra.id_sobe)
+    if not soba:
+        return None, None
 
+    mapaLS = {
+        1 : soba.igrac1_id,
+        2 : soba.igrac2_id,
+        3 : soba.igrac3_id,
+        4 : soba.igrac4_id
+    }
+
+    mapaSL = {}
+    for logicki_id, stvarni_id in mapaLS.items():
+        if stvarni_id is not None:
+            mapaSL[stvarni_id] = logicki_id
+
+    return mapaLS, mapaSL
+
+
+
+#rekonstruira objekt Runda
+def dohvati_rundu_objekt(id_igre):
     runda_db = RundaModel.query.filter_by(id_igre = id_igre).order_by(RundaModel.id_runde.desc()).first()
 
     if not runda_db:
-        return None, None
+        return None, None, None
+    
+    mapaLS, mapaSL = dohvati_mapu_igraca(id_igre)
+    if not mapaLS or not mapaSL:
+        return None, None, None
     
     logika_runde = Runda()
 
-    logika_runde.adut = runda_db.adut
-    logika_runde.na_redu = 1 #ovo treba dodati u bazu
-                             #da more pisati logika_runde.na_redu = runda.db.na_redu
+    red_lista = []
+    if runda_db.red_igranja:
+        red_lista = [int(x) for x in runda_db.red_igranja.split(',')]
 
-    return runda_db, logika_runde
+    logika_runde.postavi_stanje_iz_baze(
+        adut = runda_db.adut,
+        igrac_koji_zove = runda_db.igrac_koji_zove,
+        red_igranja = red_lista,
+        broj_stiha = runda_db.broj_stiha,
+        bodovi_mi = runda_db.bodovi_mi,
+        bodovi_vi = runda_db.bodovi_vi,
+        bodovi_zvanja_mi = runda_db.bodovi_zvanja_mi,
+        bodovi_zvanja_vi= runda_db.bodovi_zvanja_vi,
+        osvojeni_stihovi_mi= runda_db.osvojeni_stihovi_mi,
+        osvojeni_stihovi_vi= runda_db.osvojeni_stihovi_vi
+    )
+
+    sve_karte_db = RundaKarte.query.filter_by(id_runde = runda_db.id_runde).all()
+
+    for karta_db in sve_karte_db:
+        logicki_id = mapaSL.get(karta_db.id_igraca)
+
+        if logicki_id:
+            karta_log = Karta(karta_db.oznaka_karte)
+
+            if karta_db.tip == 'ruka':
+                logika_runde.ruke[logicki_id].append(karta_log)
+            elif karta_db.tip == 'talon':
+                logika_runde.taloni[logicki_id].append(karta_log)
+            elif karta_db.tip == 'stol':
+                logika_runde.karte_na_stolu.append(karta_log)
+            elif karta_db.tip == 'odigrana':
+                logika_runde.bacene_karte[logicki_id].append(karta_log)
+                
+
+    return runda_db, logika_runde, mapaSL
 
 
 @logika_bp.route('/pokreni_igru/<int:id_sobe>', methods=['POST'])

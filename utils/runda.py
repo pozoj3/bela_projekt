@@ -418,6 +418,29 @@ class Runda:
         self.igrac_koji_zove = igrac_koji_zove
 
 
+    
+    def postavi_stanje_iz_baze(self, adut, igrac_koji_zove, red_igranja, broj_stiha, 
+                               bodovi_mi, bodovi_vi, bodovi_zvanja_mi, bodovi_zvanja_vi,
+                               osvojeni_stihovi_mi, osvojeni_stihovi_vi):
+        
+        self.adut = adut if adut else ""
+        self.igrac_koji_zove = igrac_koji_zove if igrac_koji_zove else 0
+        self.red_igranja = red_igranja
+        self.broj_stiha = broj_stiha
+        
+        self.bodovi_mi = bodovi_mi
+        self.bodovi_vi = bodovi_vi
+        
+        #prvi i drugi su tu mi i vi
+        self.bodovi_zvanja[1] = bodovi_zvanja_mi
+        self.bodovi_zvanja[2] = bodovi_zvanja_vi
+        self.bodovi_zvanja[3] = 0
+        self.bodovi_zvanja[4] = 0
+        
+        self.osvojeni_stihovi_mi = osvojeni_stihovi_mi
+        self.osvojeni_stihovi_vi = osvojeni_stihovi_vi
+
+
 
     
     def tijek_runde(self, prvi_na_redu):
