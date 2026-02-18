@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, session, flash, request
+import random
 from database import db
 from utils.karta import Karta
 from utils.runda import Runda
@@ -90,18 +91,29 @@ def dohvati_rundu_objekt(id_igre):
 def pokreni_igru(id_sobe):
     soba = Soba.query.get_or_404(id_sobe)
 
-    nova_igra = Igra(id_sobe = id_sobe, zadnji_dijelio = 1)
+    nova_igra = Igra(id_sobe = id_sobe, zadnji_dijelio = 1) #ovo tu treba nekaj drugo
     db.session.add(nova_igra)
-    db.session.commit()
+    db.session.flush()
 
+    prvi_na_redu = random.randint(1, 4)
     nova_logika = Runda()
-    nova_logika.promjesaj_karte()
+    nova_logika.promjesaj_karte(prvi_na_redu=prvi_na_redu)
 
-    nova_runda_db = RundaModel(id_igre=nova_igra.id_igre,
-            redni_broj = 1, adut = None, pobjednik_stiha = None)
+    red_igranja_str = ",".join(str(x) for x in nova_logika.red_igranja)
+
+    nova_runda_db = RundaModel(
+        id_igre=nova_igra.id_igre,
+        redni_broj=1,
+        na_redu=prvi_na_redu,
+        red_igranja=red_igranja_str,
+        broj_stiha=0,
+        bodovi_mi=0,
+        bodovi_vi=0
+        # adut i igrac_koji_zove ostaju prazni (NULL) jer se adut još ne zna!
+    )
     
     db.session.add(nova_runda_db)
-    db.session.commit()
+    db.session.flush()
 
     mapa_igraca = {
         1: soba.igrac1_id,
@@ -112,24 +124,119 @@ def pokreni_igru(id_sobe):
 
     for logika_id, karte_lista in nova_logika.ruke.items():
         pravi_id = mapa_igraca[logika_id]
-
-        for karta in karte_lista:
-            nova_karta_db = RundaKarte(id_runde = nova_runda_db.id_runde,
-                    id_igraca = pravi_id, oznaka_karte = karta.oznaka, tip = "ruka")
-            
-        db.session.add(nova_karta_db)
+        if pravi_id:
+            for karta in karte_lista:
+                nova_karta_db = RundaKarte(
+                    id_runde = nova_runda_db.id_runde,
+                    id_igraca = pravi_id,
+                    oznaka_karte = karta.oznaka,
+                    tip = "ruka"
+                )       
+                db.session.add(nova_karta_db)
     
     for logika_id, karte_lista in nova_logika.taloni.items():
         pravi_id = mapa_igraca[logika_id]
-
-        for karta in karte_lista:
-            nova_karta_db = RundaKarte(id_runde = nova_runda_db.id_runde,
-                id_igraca = pravi_id, oznaka_karte = karta.oznaka, tip = "talon")
-            db.session.add(nova_karta_db)
+        if pravi_id:
+            for karta in karte_lista:
+                nova_karta_db = RundaKarte(
+                    id_runde = nova_runda_db.id_runde,
+                    id_igraca = pravi_id,
+                    oznaka_karte = karta.oznaka,
+                    tip = "talon"
+                )  
+                db.session.add(nova_karta_db)
 
     db.session.commit()
     
     return jsonify({"status": "uspjeh", "id_igre" : nova_igra.id_igre})
+
+
+@logika_bp.route("/zovi_aduta", methods = ['POST'])
+def zovi_aduta():
+    data = request.json
+    id_igre = data.get("id_igre")
+    odluka = data.get("odluka")
+    id_igraca_session = session.get("id_igraca")
+
+    if not id_igraca_session:
+        return jsonify({"status": "greska", "poruka" : "Niste prijavljeni."}), 401
+    
+    runda_db, logika_runde, mapaSL = dohvati_mapu_igraca(id_igre)
+
+    if not runda_db:
+        return jsonify({"status": "greska", "poruka" : "Runda nije pronađena."}), 404
+    
+    logicki_id = mapaSL.get(id_igraca_session)
+    if runda_db.faza_igre != "zvanje": #treba dodati fazu igre
+        return jsonify({"status": "greska", "poruka": "Zvanje aduta je već završilo."}), 400
+    
+    if logicki_id != runda_db.na_redu:
+        return jsonify({"status": "greska", "poruka": "Niste vi na redu za zvanje!"}), 403
+    
+
+    #igrac veli dalje
+    if odluka == "dalje":
+        if logicki_id == runda_db.djelitelj:
+            return jsonify({"status": "greska", "poruka": "Na musu ste, morate zvati aduta!"}), 400
+        
+        iduci_na_redu = 1 if logicki_id == 4 else logicki_id + 1
+        runda_db.na_redu = iduci_na_redu
+
+        db.session.commit()
+        return jsonify({"status": "ok", "poruka": "Rekli ste dalje.", "na_redu": iduci_na_redu})
+    
+
+    #igrac bira boju
+    elif odluka in ["H", "K", "P", "T"]:
+        runda_db.adut = odluka
+        runda_db.igrac_koji_zove = logicki_id
+        runda_db.faza_igre = "igranje"
+
+        logika_runde.zovi_aduta(odluka, logicki_id)
+
+        for i in range(1,5):
+            logika_runde.otkrij_karte(i)
+            logika_runde.sortiraj_ruku(i)
+            logika_runde.zvanja_karte(i)
+
+        logika_runde.valinda_zvanja()
+
+        runda_db.bodovi_zvanja_mi = logika_runde.bodovi_zvanja[1] + logika_runde.bodovi_zvanja[3]
+        runda_db.bodovi_zvanja_vi = logika_runde.bodovi_zvanja[2] + logika_runde.bodovi_zvanja[4]
+
+        karte_talon_db = RundaKarte.query.filter_by(id_runde=runda_db.id_runde, tip="talon").all()
+        for karta_db in karte_talon_db:
+            karta_db.tip = "ruka"
+
+        prvi_baca = 1 if runda_db.djelitelj == 4 else runda_db.djelitelj + 1
+
+        red_liste = [
+            prvi_baca, 
+            logika_runde.pomoca_za_red(prvi_baca + 1),
+            logika_runde.pomoca_za_red(prvi_baca + 2),
+            logika_runde.pomoca_za_red(prvi_baca + 3)
+        ]
+        runda_db.red_igranja = ",".join(str(x) for x in red_liste)
+        logika_runde.red_igranja = red_liste
+
+        db.session.commit()
+
+        return jsonify({"status" : "ok", "poruka" : "Adut je {odluka}.",
+                        "na_redu": prvi_baca, "zvanja_mi" : runda_db.bodovi_zvanja_mi,
+                        "zvanja_vi": runda_db.bodovi_zvanja_vi})
+    
+    else:
+        return jsonify({"status": "greska", "poruka": "Nepoznata odluka!"}), 400
+
+
+
+
+
+
+
+
+
+
 
 
 @logika_bp.route("/odigraj_potez", methods=['POST'])
