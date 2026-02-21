@@ -91,7 +91,7 @@ def dohvati_rundu_objekt(id_igre):
 def pokreni_igru(id_sobe):
     soba = Soba.query.get_or_404(id_sobe)
 
-    nova_igra = Igra(id_sobe = id_sobe, zadnji_dijelio = 1) #ovo tu treba nekaj drugo
+    nova_igra = Igra(id_sobe = id_sobe, zadnji_dijelio = 1) 
     db.session.add(nova_igra)
     db.session.flush()
 
@@ -104,6 +104,7 @@ def pokreni_igru(id_sobe):
     nova_runda_db = RundaModel(
         id_igre=nova_igra.id_igre,
         redni_broj=1,
+        djelitelj = djelitelj,
         na_redu=prvi_na_redu,
         red_igranja=red_igranja_str,
         broj_stiha=0,
@@ -161,7 +162,7 @@ def zovi_aduta():
     if not id_igraca_session:
         return jsonify({"status": "greska", "poruka" : "Niste prijavljeni."}), 401
     
-    runda_db, logika_runde, mapaSL = dohvati_mapu_igraca(id_igre)
+    runda_db, logika_runde, mapaSL = dohvati_rundu_objekt(id_igre)
 
     if not runda_db:
         return jsonify({"status": "greska", "poruka" : "Runda nije pronađena."}), 404
@@ -199,8 +200,7 @@ def zovi_aduta():
             logika_runde.sortiraj_ruku(i)
             logika_runde.zvanja_karte(i)
 
-        logika_runde.valinda_zvanja()
-
+        logika_runde.validna_zvanja()
         runda_db.bodovi_zvanja_mi = logika_runde.bodovi_zvanja[1] + logika_runde.bodovi_zvanja[3]
         runda_db.bodovi_zvanja_vi = logika_runde.bodovi_zvanja[2] + logika_runde.bodovi_zvanja[4]
 
@@ -221,7 +221,7 @@ def zovi_aduta():
 
         db.session.commit()
 
-        return jsonify({"status" : "ok", "poruka" : "Adut je {odluka}.",
+        return jsonify({"status" : "ok", "poruka" : f"Adut je {odluka}.",
                         "na_redu": prvi_baca, "zvanja_mi" : runda_db.bodovi_zvanja_mi,
                         "zvanja_vi": runda_db.bodovi_zvanja_vi})
     
@@ -294,8 +294,52 @@ def odigraj_potez():
         stanje_odgovor = "stih_gotov"
 
         if runda_db.broj_stiha == 8:
-            stanje_odgovor = "runda_gotova"
+            logika_runde.konacni_bodovi()
+
+            runda_db.bodovi_mi = logika_runde.bodovi_mi
+            runda_db.bodovi_vi = logika_runde.bodovi_vi
             runda_db.faza_igre = "kraj"
+
+            igra_db = Igra.query.get(runda_db.id_igre)
+            igra_db.br_bodova_mi += runda_db.bodovi_mi
+            igra_db.br_bodova_vi += runda_db.bodovi_vi
+
+            if igra_db.br_bodova_mi >= 1001 or igra_db.br_bodova_vi >= 1001:
+                stanje_odgovor = "kraj_igre"
+
+            else:
+                novi_djelitelj = 1 if runda_db.djelitelj == 4 else runda_db.djelitelj + 1
+                prvi_igra = 1 if novi_djelitelj == 4 else novi_djelitelj + 1
+
+                nova_logika = Runda()
+                nova_logika.promjesaj_karte(prvi_na_redu= prvi_igra)
+
+                red_igranja_str = ",".join(str(x) for x in nova_logika.red_igranja)
+
+                nova_runda_db = RundaModel(
+                    id_igre = igra_db.id_igre,
+                    redni_broj = runda_db.redni_broj + 1,
+                    faza_igre = "zvanje",
+                    djelitelj = novi_djelitelj,
+                    na_redu = prvi_igra,
+                    red_igranja = red_igranja_str,
+                    broj_stiha = 0, bodovi_mi = 0, bodovi_vi = 0
+                )
+
+                db.session.add(nova_runda_db)
+                db.session.flush()
+
+                mapaLS, _ = dohvati_mapu_igraca(igra_db.id_igre)
+
+                for logicki_id, karte_lista in nova_logika.ruke.items():
+                    for karta in karte_lista:
+                        db.session.add(RundaKarte(id_runde = nova_runda_db.id_runde,
+                                id_igraca = mapaLS[logicki_id], oznaka_karte = karta.oznaka, tip = "ruka"))
+                        
+                for logicki_id, karte_lista in nova_logika.taloni.items():
+                    for karta in karte_lista:
+                        db.session.add(RundaKarte(id_runde = nova_runda_db.id_runde,
+                                id_igraca = mapaLS[logicki_id], oznaka_karte = karta.oznaka, tip = "talon"))
         
         else:
             broj_karti_stol = len(logika_runde.karte_na_stolu)
@@ -309,7 +353,7 @@ def odigraj_potez():
 
     
 
-@logika_bp.route("/stanje_igre/<int:id_igre>", metods=['GET'])
+@logika_bp.route("/stanje_igre/<int:id_igre>", methods=['GET'])
 def stanje_igre(id_igre):
     id_igraca_session = session.get("id_igraca")
 
@@ -328,7 +372,7 @@ def stanje_igre(id_igre):
 
     karta_ruka_oznake = []
     if logicki_id and logicki_id in logika_runde.ruke:
-        karta_ruka_oznake = [k.oznaka for k in logika_runde[logicki_id]]
+        karta_ruka_oznake = [k.oznaka for k in logika_runde.ruke[logicki_id]]
 
     trenutni_bodovi_mi = runda_db.bodovi_mi + runda_db.bodovi_zvanja_mi
     trenutni_bodovi_vi = runda_db.bodovi_vi + runda_db.bodovi_zvanja_vi

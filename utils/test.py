@@ -34,7 +34,7 @@ if __name__ == "__main__":
             print(f"Igrač {i} prijavljuje: {runda.popis_zvanja[i]} ({runda.bodovi_zvanja[i]} bodova)")
     
     # Validacija zvanja (tko je jači)
-    runda.validna_zove()
+    runda.validna_zvanja()
     
     print("\n--- PRIZNATA ZVANJA ---")
     ukupno_zvanja_mi = runda.bodovi_zvanja[1] + runda.bodovi_zvanja[3]

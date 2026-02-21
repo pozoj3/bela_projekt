@@ -209,7 +209,7 @@ class Runda:
         self.bodovi_zvanja[br_igraca] = bodovi
         self.popis_zvanja[br_igraca] = temp_sva
 
-    def validna_zove(self):
+    def validna_zvanja(self):
         vrijednosti_za_zvanje_skala = {
             "7": 7,
             "8": 8,
@@ -262,10 +262,10 @@ class Runda:
                         if(temp2 > najjace_od_svih_zvanja[1]):
                             najjace_od_svih_zvanja = [temp1,temp2,temp3,temp4]
                         elif(temp2 == najjace_od_svih_zvanja[1]):
-                            if(self.red_igranja.index(temp4) > self.red_igranja.index(najjace_od_svih_zvanja[3])):
+                            if(self.red_igranja.index(temp4) < self.red_igranja.index(najjace_od_svih_zvanja[3])):
                                 najjace_od_svih_zvanja = [temp1,temp2,temp3,temp4]
                 elif(temp1 == najjace_od_svih_zvanja[0] and temp1 == 3):
-                    if(self.red_igranja.index(temp4) > self.red_igranja.index(najjace_od_svih_zvanja[3])):
+                    if(self.red_igranja.index(temp4) < self.red_igranja.index(najjace_od_svih_zvanja[3])):
                                 najjace_od_svih_zvanja = [temp1,temp2,temp3,temp4]
 
         if(najjace_od_svih_zvanja[3] % 2 == 1):
@@ -394,7 +394,7 @@ class Runda:
 
     
     def konacni_bodovi(self):
-        ukupna_igra = 162 + sum(bodovi.value() for bodovi in self.bodovi_zvanja)
+        ukupna_igra = 162 + sum(self.bodovi_zvanja.values())
 
         potrebno = ukupna_igra / 2  + 1
 
