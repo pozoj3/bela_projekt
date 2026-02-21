@@ -91,6 +91,5 @@ def pridruzi_se():
 def ulazak_u_sobu(id_sobe):
     # UZMI BROJ I PROSLIJEDI GA KAO id_sobe
     soba = Soba.query.get_or_404(id_sobe)
-    
-    # KADA ĆEMO IMATI KONKRETNIJI NAZIV PROMIJENIT ĆEMO OVO, ALI ŠALJEMO IGRAČA ZA STOL
-    # return render_template('stol.html', soba=soba)
+
+    return render_template('table.html', soba=soba)

@@ -22,6 +22,18 @@ class RundaModel(db.Model):
     adut = db.Column(db.String(1))
     # ADUT ĆE BIT H/K/T/P
     pobjednik_stiha = db.Column(db.Integer)
+    igrac_koji_zove = db.Column(db.Integer, nullable=False)
+    faza_igre = db.Column(db.Enum('zvanje', 'igranje', 'kraj'), nullable=False)
+    djelitelj = db.Column(db.Integer, nullable=False)
+    na_redu = db.Column(db.Integer, nullable=False)
+    red_igranja = db.Column(db.String(7), nullable=False)
+    broj_stiha = db.Column(db.Integer, nullable=False)
+    bodovi_mi = db.Column(db.Integer, nullable=False)
+    bodovi_vi = db.Column(db.Integer, nullable=False)
+    bodovi_zvanja_mi = db.Column(db.Integer, nullable=True)
+    bodovi_zvanja_vi = db.Column(db.Integer, nullable=True)
+    osvojeni_stihovi_mi = db.Column(db.Integer, nullable=True)
+    osvojeni_stihovi_vi = db.Column(db.Integer, nullable=True)
 
     karte = db.relationship('RundaKarte', backref='runda', lazy=True, cascade="all, delete-orphan")
 
@@ -35,4 +47,4 @@ class RundaKarte(db.Model):
     oznaka_karte = db.Column(db.String(2), nullable=False) # NPR. T9, Pk I SLIČNO
     
     # RUKA, IGRAČU VIDLJIVA U RUCI, TALON, ZADNJE DVIJE KARTE DO ZVANJA ADUTA, ODIGRANA, KARTA ODIGRANA
-    tip = db.Column(db.Enum('ruka', 'talon', 'odigrana'), nullable=False)
+    tip = db.Column(db.Enum('ruka', 'talon', 'odigrana', 'stol'), nullable=False)

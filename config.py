@@ -2,10 +2,10 @@ import os
 
 class Config:
 
-    DATABASE_USER = 'root'
-    DATABASE_PASS = ''
-    DATABASE_HOST = 'localhost'
-    DATABASE_DB = 'bela_projekt'
+    DATABASE_USER = 'apelko'
+    DATABASE_PASS = '1191250989'
+    DATABASE_HOST = 'rwa.studenti.math.hr'
+    DATABASE_DB = 'apelko_bela'
 
     SQLALCHEMY_DATABASE_URI = (
         f"mysql+pymysql://{DATABASE_USER}:{DATABASE_PASS}"
