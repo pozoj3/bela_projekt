@@ -226,15 +226,7 @@ def zovi_aduta():
                         "zvanja_vi": runda_db.bodovi_zvanja_vi})
     
     else:
-        return jsonify({"status": "greska", "poruka": "Nepoznata odluka!"}), 400
-
-
-
-
-
-
-
-
+        return jsonify({"status": "greska", "poruka": "Nepoznata odluka."}), 400
 
 
 
@@ -243,33 +235,114 @@ def zovi_aduta():
 def odigraj_potez():
     data = request.json
     id_igre = data.get("id_igre")
-    oznaka_karte = data.get("karta")
-    id_igraca = session.get("id_igraca")
+    kliknuta_karta = data.get("kliknuta_karta")
+    id_igraca_session = session.get("id_igraca")
 
-    runda_db, logika_runde = dohvati_rundu_objekt(id_igre)
-    karta_objekt = Karta(oznaka_karte)
-    uspjeh = logika_runde.baci_kartu(id_igraca, karta_objekt)
+    if not id_igre:
+        return jsonify({"status" : "greska", "poruka" : "Igra nije pronadena."})
+    
+    if not id_igraca_session:
+        return jsonify({"status" : "greska", "poruka" : "Niste prijavljeni."})
+    
+    runda_db, logika_runde, mapaSL = dohvati_rundu_objekt(id_igre)
 
-    if uspjeh:
-        karta_db = RundaKarte.query.filter_by(id_runde = runda_db.id_runde,
-                id_igraca = id_igraca, oznaka_karte = oznaka_karte).first()
+    if not runda_db:
+        return jsonify({"status" : "greska", "poruka" : "Runda nije pronadena."})
+    
+    if runda_db.faza_igre != "igranje":
+        return jsonify({"status" : "greska", "poruka" : "Trenutno ne mozete baciti kartu."})
+    
+    logicki_id = mapaSL.get(id_igraca_session)
 
-        # B) Provjeri je li gotov štih (4 karte na stolu)
-        if len(logika_runde.karte_na_stolu) == 4: # Ovo provjeravaš nakon dodavanja
-             # Tvoja logika: logika_runde.pokupi_stih()
-             # Ažuriraj bodove u tablici Igra
-             pass
+    if logicki_id != runda_db.na_redu:
+        return jsonify({"status" : "greska", "poruka" : "Niste na redu."})
+    
+    pokusana_karta = Karta(kliknuta_karta)
+    jelBacena = logika_runde.baci_kartu(pokusana_karta= pokusana_karta, br_igraca= logicki_id)
+    
+    if not jelBacena:
+        return jsonify({"status" : "greska", "poruka" : "Ne mozete baciti tu kartu, morate postivati pravila."})   
+    
+    karta_db = RundaKarte.query.filter_by(id_runde = runda_db.id_runde,
+                id_igraca = id_igraca_session, oznaka_karte = kliknuta_karta, tip = "ruka").first()
         
+    if karta_db:
+        karta_db.tip = "stol"
+        
+    runda_db.bodovi_zvanja_mi = logika_runde.bodovi_zvanja[1] + logika_runde.bodovi_zvanja[3]
+    runda_db.bodovi_zvanja_vi = logika_runde.bodovi_zvanja[2] + logika_runde.bodovi_zvanja[4]
+
+    stanje_odgovor = "karta_bacena"
+    if len(logika_runde.karte_na_stolu) == 4:
+        logika_runde.pokupi_stih()
+
+        runda_db.bodovi_mi = logika_runde.bodovi_mi
+        runda_db.bodovi_vi = logika_runde.bodovi_vi
+        runda_db.broj_stiha = logika_runde.broj_stiha
+        runda_db.osvojeni_stihovi_mi = logika_runde.osvojeni_stihovi_mi
+        runda_db.osvojeni_stihovi_vi = logika_runde.osvojeni_stihovi_vi
+
+        karta_na_stolu_db = RundaKarte.query.filter_by(id_runde = runda_db.id_runde, tip = "stol").all()
+        for karta in karta_na_stolu_db:
+            karta.tip = "odigrana"
+        
+        pobjednik = logika_runde.red_igranja[0]
+        runda_db.na_redu = pobjednik
+
+        runda_db.red_igranja = ",".join(str(x) for x in logika_runde.red_igranja)
+
+        stanje_odgovor = "stih_gotov"
+
+        if runda_db.broj_stiha == 8:
+            stanje_odgovor = "runda_gotova"
+            runda_db.faza_igre = "kraj"
+        
+        else:
+            broj_karti_stol = len(logika_runde.karte_na_stolu)
+            iduci_igrac = logika_runde.red_igranja[broj_karti_stol]
+            runda_db.na_redu = iduci_igrac
+
         db.session.commit()
 
-        return jsonify({"status": "ok", "stanje": "karta_bacena"})
-    else:
-        return jsonify({"status": "greska", "poruka": "Neispravan potez!"}), 400
+        return jsonify({"status" : "ok", "stanje" : stanje_odgovor, "na_redu" : runda_db.na_redu})
+        
+
     
 
 @logika_bp.route("/stanje_igre/<int:id_igre>", metods=['GET'])
 def stanje_igre(id_igre):
-    #dodali bumo za crtanje
-    pass
-    
+    id_igraca_session = session.get("id_igraca")
 
+    if not id_igraca_session:
+        return jsonify({"status": "greska", "poruka": "Niste prijavljeni."})
+    
+    runda_db, logika_runde, mapaSL = dohvati_rundu_objekt(id_igre)
+
+    if not runda_db:
+        return jsonify({"status": "greska", "poruka": "Runda nije pronađena."})
+    
+    igra_db = Igra.query.get(id_igre)
+    logicki_id = mapaSL.get(id_igraca_session)
+
+    stol_oznake = [k.oznaka for k in logika_runde.karte_na_stolu]
+
+    karta_ruka_oznake = []
+    if logicki_id and logicki_id in logika_runde.ruke:
+        karta_ruka_oznake = [k.oznaka for k in logika_runde[logicki_id]]
+
+    trenutni_bodovi_mi = runda_db.bodovi_mi + runda_db.bodovi_zvanja_mi
+    trenutni_bodovi_vi = runda_db.bodovi_vi + runda_db.bodovi_zvanja_vi
+
+    stanje = { "status" : "ok",
+              "faza_igre" : runda_db.faza_igre,
+              "na_redu" : runda_db.na_redu,
+              "djelitelj" : runda_db.djelitelj,
+              "adut" : runda_db.adut,
+              "igrac_koji_zove" : runda_db.igrac_koji_zove,
+              "id_ovog_igraca" : logicki_id,
+              "karte_igraca" : karta_ruka_oznake,
+              "stol" : stol_oznake,
+              "rezultat_runde" : { "mi" : trenutni_bodovi_mi, "vi" : trenutni_bodovi_vi},
+              "rezultat_ukupno" : {"mi" : igra_db.br_bodova_mi, "vi" : igra_db.br_bodova_vi}}
+    
+    return jsonify(stanje)
