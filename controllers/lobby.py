@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, session, flash, request
 from database import db
+from models.igra import Igra
 from models.igrac import Igrac
 from models.soba import Soba
 
@@ -89,7 +90,14 @@ def pridruzi_se():
 # RUTA ZA PROMJENU NA SOBU
 @lobby_bp.route('/soba/<int:id_sobe>')
 def ulazak_u_sobu(id_sobe):
-    # UZMI BROJ I PROSLIJEDI GA KAO id_sobe
     soba = Soba.query.get_or_404(id_sobe)
 
-    return render_template('table.html', soba=soba)
+    # PROVJERI POSTOJI LI IGRA
+    igra = Igra.query.filter_by(id_sobe=soba.id_sobe).first()
+
+    if igra:
+        # AKO IGRA POSTOJI S TIM BROJEM IDEMO NA STOL
+        return redirect(url_for('logika.prikaz_stola', id_igre=igra.id_igre))
+
+    # AKO IGRE NEMA IDI NA ČEKAONICU
+    return render_template('cekaonica.html', soba=soba)

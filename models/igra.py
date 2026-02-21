@@ -11,7 +11,7 @@ class Igra(db.Model):
     
     zadnji_dijelio = db.Column(db.Integer, db.ForeignKey('igrac.id'))
 
-    runde = db.relationship('Runda', backref='igra', lazy=True, cascade="all, delete-orphan")
+    runde = db.relationship('RundaModel', backref='igra', lazy=True, cascade="all, delete-orphan")
 
 class RundaModel(db.Model):
     __tablename__ = 'runda'
