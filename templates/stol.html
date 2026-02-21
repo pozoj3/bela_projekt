@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <title>BELA - Stol</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+
+<div class="stol-wrapper">
+
+    <!--INFORMACIJE-->
+    <div class="info">
+        <p><strong>Adut:</strong> <span id="adut"></span></p>
+        <p><strong>Na redu:</strong> Igrač <span id="na-redu"></span></p>
+        <p><strong>Ukupno:</strong> 
+            MI <span id="mi-ukupno"></span> - 
+            VI <span id="vi-ukupno"></span>
+        </p>
+        <p><strong>Bodovi zvanja:</strong></p>
+            <p>MI: <span id="zvanja-mi"></span></p>
+            <p>VI: <span id="zvanja-vi"></span></p>
+        <p><strong>Bodovi u rundi:</strong> 
+            MI <span id="mi-runda"></span> - 
+            VI <span id="vi-runda"></span>
+        </p>
+        
+    </div>
+
+    <hr>
+
+    <!-- KARTE NA STOLU -->
+    <div id="stol">
+        <div id="gore" class="pozicija gore"></div>
+
+        <div class="sredina">
+            <div id="lijevo" class="pozicija lijevo"></div>
+            <div id="desno" class="pozicija desno"></div>
+        </div>
+
+        <div id="dolje" class="pozicija dolje"></div>
+    </div>
+
+    <hr>
+
+    <!-- MOJA RUKA -->
+    <div id="moja-ruka"></div>
+
+    <hr>
+
+    <!-- ZVANJE ADUTA -->
+    <div id="zvanje-aduta" style="display:none;">
+
+        <h3>Odaberi aduta</h3>
+
+        <img src="static/herc64.png"
+            onclick="zoviAduta('H')" class="adut-gumb">
+
+        <img src="static/karo64.png"
+            onclick="zoviAduta('K')" class="adut-gumb">
+
+        <img src="static/pik64.png"
+            onclick="zoviAduta('P')" class="adut-gumb">
+
+        <img src="static/tref64.png"
+            onclick="zoviAduta('T')" class="adut-gumb">
+
+        <button onclick="zoviAduta('dalje')">Dalje</button>
+
+    </div>
+
+</div>
+
+
+<script>
+const idIgre = {{ id_igre }};
+</script>
+
+<script src="static/stol.js"></script>
+
+</body>
+</html>

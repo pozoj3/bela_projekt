@@ -386,7 +386,12 @@ def stanje_igre(id_igre):
               "id_ovog_igraca" : logicki_id,
               "karte_igraca" : karta_ruka_oznake,
               "stol" : stol_oznake,
+              "zvanja": {
+                "mi": runda_db.bodovi_zvanja_mi,
+                "vi": runda_db.bodovi_zvanja_vi
+              },
               "rezultat_runde" : { "mi" : trenutni_bodovi_mi, "vi" : trenutni_bodovi_vi},
+              "red_igranja": [int(x) for x in runda_db.red_igranja.split(",")] if runda_db.red_igranja else [],
               "rezultat_ukupno" : {"mi" : igra_db.br_bodova_mi, "vi" : igra_db.br_bodova_vi}}
     
     return jsonify(stanje)

@@ -145,3 +145,30 @@ button:hover {
 .cekaonica {
     background-color: #f9ecd2;
 }
+
+.stol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+}
+
+.sredina {
+    display: flex;
+    justify-content: space-between;
+    width: 400px;
+}
+
+.pozicija {
+    min-width: 80px;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gore { margin-bottom: 20px; }
+.dolje { margin-top: 20px; }
+.lijevo { margin-right: 40px; }
+.desno { margin-left: 40px; }
