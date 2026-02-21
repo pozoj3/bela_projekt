@@ -104,3 +104,36 @@ button:hover {
 .logout-btn:hover {
     text-decoration: underline;
 }
+
+
+/* ZA KARTE */
+
+/* OSNOVNI DIO ZA SVAKU KARTU */
+.karta-png {
+    width: 200px;
+    height: 275px;
+    display: inline-block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 6px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease-in-out;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+/* EFEKT ZA HOVER */
+.karta-png:hover {
+    transform: translateY(-15px) scale(1.05);
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.4);
+}
+
+/* STIL ZA GUMBOVE */
+.karta-gumb {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 5px;
+    outline: none;
+}

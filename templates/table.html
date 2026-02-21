@@ -29,9 +29,8 @@
         <div class="stats-box">
             {% if runda.karte_na_stolu %}
                 {% for karta in runda.karte_na_stolu %}
-                    <span style="margin:10px; font-weight:bold;">
-                        {{ karta.oznaka }}
-                    </span>
+                    <div class="karta-png" style="background-image: url('{{url_for('static', filename=karta.oznaka + '.png')}}');" title = "{{karta.oznaka}}">
+                    </div>
                 {% endfor %}
             {% else %}
                 <p>Nema odigranih karata.</p>
@@ -43,14 +42,15 @@
         <h3>Moje karte</h3>
         <div class="stats-box">
 
-            {% for karta in moja_ruka %}
+            {% for karta in runda.ruke[session.id_logicki] %}
                 <form action="{{ url_for('logika.odigraj_potez') }}" method="POST" style="display:inline;">
                     
                     <input type="hidden" name="id_igre" value="{{ igra.id_igre }}">
                     <input type="hidden" name="karta" value="{{ karta.oznaka }}">
 
-                    <button type="submit">
-                        {{ karta.oznaka }}
+                    <button type="submit" class = "karta-button">
+                        <div class="karta-png" style="background-image: url('{{url_for('static', filename=karta.oznaka + '.png')}}');" title = "{{karta.oznaka}}">
+                        </div>
                     </button>
 
                 </form>
