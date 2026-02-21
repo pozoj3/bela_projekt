@@ -58,3 +58,49 @@ button {
 button:hover {
     background-color: #3e382d;
 }
+
+/*Lobby*/
+
+.lobby-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f9ecd2;
+}
+
+.lobby-box {
+    background-color: #d3c8b2;
+    padding: 40px;
+    border-radius: 20px;
+    width: 450px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.stats-box {
+    background-color: #fdfdfd;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.logout {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.logout-btn {
+    text-decoration: none;
+    color: #5d5444;
+    font-weight: bold;
+}
+
+.logout-btn:hover {
+    text-decoration: underline;
+}

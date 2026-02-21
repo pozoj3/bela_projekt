@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <title>BELA - Stol</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="lobby-wrapper">
+
+    <div class="lobby-box">
+
+        <h2>Igra BELA</h2>
+
+        <div class="stats-box">
+            <p><strong>ID igre:</strong> {{ igra.id_igre }}</p>
+            <p><strong>Prijavljen kao:</strong> {{ session.username }}</p>
+            <p><strong>Adut:</strong> {{ runda.adut if runda.adut else "-" }}</p>
+            <p><strong>Na redu (logički ID):</strong> {{ runda.na_redu }}</p>
+            <p><strong>Bodovi MI:</strong> {{ runda.bodovi_mi }}</p>
+            <p><strong>Bodovi VI:</strong> {{ runda.bodovi_vi }}</p>
+        </div>
+
+        <hr>
+
+        <h3>Karte na stolu</h3>
+        <div class="stats-box">
+            {% if runda.karte_na_stolu %}
+                {% for karta in runda.karte_na_stolu %}
+                    <span style="margin:10px; font-weight:bold;">
+                        {{ karta.oznaka }}
+                    </span>
+                {% endfor %}
+            {% else %}
+                <p>Nema odigranih karata.</p>
+            {% endif %}
+        </div>
+
+        <hr>
+
+        <h3>Moje karte</h3>
+        <div class="stats-box">
+
+            {% for karta in moja_ruka %}
+                <form action="{{ url_for('logika.odigraj_potez') }}" method="POST" style="display:inline;">
+                    
+                    <input type="hidden" name="id_igre" value="{{ igra.id_igre }}">
+                    <input type="hidden" name="karta" value="{{ karta.oznaka }}">
+
+                    <button type="submit">
+                        {{ karta.oznaka }}
+                    </button>
+
+                </form>
+            {% endfor %}
+
+        </div>
+
+        <hr>
+
+        <h3>Zovi aduta</h3>
+
+        <div class="stats-box">
+
+            {% for oznaka, naziv in {
+                "H": "Herc",
+                "K": "Karo",
+                "P": "Pik",
+                "T": "Tref",
+                "dalje": "Dalje"
+            }.items() %}
+
+                <form action="{{ url_for('logika.zovi_aduta') }}" method="POST" style="display:inline;">
+                    
+                    <input type="hidden" name="id_igre" value="{{ igra.id_igre }}">
+                    <input type="hidden" name="odluka" value="{{ oznaka }}">
+
+                    <button type="submit">
+                        {{ naziv }}
+                    </button>
+
+                </form>
+
+            {% endfor %}
+
+        </div>
+
+        <hr>
+
+        <div class="logout">
+            <a href="{{ url_for('lobby.prikaz_lobbyja') }}" class="logout-btn">
+                Povratak u lobby
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

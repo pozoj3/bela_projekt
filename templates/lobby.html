@@ -1,15 +1,66 @@
 <!DOCTYPE html>
 <html lang="hr">
-    
-    <head>
-        
-    <title>BELA APLIKACIJA</title>
-    <link rel="stylesheet" href="static/style.css">   
+<head>
+    <meta charset="UTF-8">
+    <title>BELA - Lobby</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
 
-    </head>
+<body>
 
-    <body>
-        
-    </body>
-    
+<div class="lobby-wrapper">
+
+    <div class="lobby-box">
+
+        <h1>Dobrodošao, {{ igrac.username }} </h1>
+
+        <div class="stats-box">
+            <p><strong>Email:</strong> {{ igrac.mail }}</p>
+            <p><strong>Odigrane igre:</strong> {{ igrac.br_odigranih }}</p>
+            <p><strong>Pobjede:</strong> {{ igrac.br_pobjeda }}</p>
+        </div>
+
+        <hr>
+
+        <div class="actions">
+
+            <form action="{{ url_for('lobby.kreiraj_sobu') }}" method="POST">
+                <button type="submit" class="btn-primary">
+                     Kreiraj novu sobu
+                </button>
+            </form>
+
+            <div class="join-room">
+                <form action="{{ url_for('lobby.pridruzi_se') }}" method="POST">
+                    <label>Unesi ID sobe:</label>
+                    <input type="number" name="id_sobe" placeholder="Npr. 12" required>
+                    <button type="submit" class="btn-secondary">
+                        Pridruži se
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+        <div class="logout">
+            <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                Odjava
+            </a>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+    </div>
+
+</div>
+
+</body>
 </html>
