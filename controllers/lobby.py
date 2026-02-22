@@ -101,3 +101,33 @@ def ulazak_u_sobu(id_sobe):
 
     # AKO IGRE NEMA IDI NA ČEKAONICU
     return render_template('cekaonica.html', soba=soba)
+
+# RUTA ZA DOHVAĆANJE STANJA SOBE (ZA ČEKAONICU)
+@lobby_bp.route('/stanje_sobe/<int:id_sobe>')
+def stanje_sobe(id_sobe):
+
+    # PROVJERA POSTOJI LI SOBA
+    soba = Soba.query.get_or_404(id_sobe)
+
+    # PROVJERA POSTOJI LI IGRA VEĆ ZA TU SOBU
+    igra = Igra.query.filter_by(id_sobe=id_sobe).first()
+
+    # DOHVATI SVE IGRAČE U SOBI
+    igraci = [
+        soba.igrac1_id,
+        soba.igrac2_id,
+        soba.igrac3_id,
+        soba.igrac4_id
+    ]
+
+    # IZBROJI KOLIKO IH STVARNO IMA (IGNORIRAJ None)
+    broj_igraca = len([i for i in igraci if i is not None])
+
+    # VRATI PODATKE
+    return {
+        "status": "ok",
+        "igraci": igraci,
+        "broj_igraca": broj_igraca,
+        "igra_pokrenuta": True if igra else False,
+        "id_igre": igra.id_igre if igra else None
+    }
