@@ -20,7 +20,7 @@ function provjeriSobu() {
 
             // AKO JE IGRA POKRENUTA PREBACI NA STOL
             if (data.igra_pokrenuta) {
-                window.location.href = `/stol/${data.id_igre}`;
+                window.location.href = `/prikaz_stola/${data.id_igre}`;
                 return;
             }
 

@@ -1,5 +1,5 @@
 import random
-from karta import Karta
+from utils.karta import Karta
 from collections import Counter
 
 class Runda:

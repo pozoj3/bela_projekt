@@ -454,3 +454,15 @@ def stanje_igre(id_igre):
               "rezultat_ukupno" : {"mi" : igra_db.br_bodova_mi, "vi" : igra_db.br_bodova_vi}}
     
     return jsonify(stanje)
+
+
+@logika_bp.route('/prikaz_stola/<int:id_igre>')
+def prikaz_stola(id_igre):
+    # Sigurnosna provjera: Ne puštaj neprijavljene na stol
+    id_igraca_session = session.get("id_igraca")
+    if not id_igraca_session:
+        # Preusmjeri na login (promijeni 'auth.login' u onaj endpoint koji koristiš za prijavu)
+        return redirect(url_for('auth.login')) 
+        
+    # Renderiramo tvoj stol.html i šaljemo mu id_igre kako bi JS znao koju igru igramo
+    return render_template('stol.html', id_igre=id_igre)
