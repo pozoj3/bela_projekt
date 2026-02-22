@@ -43,7 +43,7 @@ def kreiraj_sobu():
     db.session.commit()
     
 
-    flash(f"Soba {nova_soba.id_sobe} uspješno kreirana!", "success")
+    flash(f"Soba {nova_soba.id_sobe} uspješno kreirana!", "lobby_info")
     return redirect(url_for('lobby.ulazak_u_sobu', id_sobe=nova_soba.id_sobe))
 
 
@@ -63,7 +63,7 @@ def pridruzi_se():
     
     # AKO GA NISI PRONAŠAO, BACI GREŠKU
     if not soba:
-        flash("Soba ne postoji!", "danger")
+        flash("Soba ne postoji!", "lobby_info")
         return redirect(url_for('lobby.prikaz_lobbyja'))
 
     # PROVJERI JE LI IGRAČ VEĆ U SOBI
@@ -80,7 +80,7 @@ def pridruzi_se():
         # OVDJE MOŽEMO UBACITI DA SE IGRA POKRENE KAD IMAMO 4 IGRAČA
     else:
         # AKO IGRAČ NIJE VEĆ U SOBI, A IMAMO 4 IGRAČA UNUTRA, BACI GREŠKU
-        flash("Soba je puna!", "warning")
+        flash("Soba je puna!", "lobby_info")
         return redirect(url_for('lobby.prikaz_lobbyja'))
 
     # AŽURIRAJ REDAK I POŠALJI IGRAČA U SOBU

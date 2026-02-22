@@ -1,4 +1,4 @@
-
+ac
 //ucitavanje stanja igre čim se stranica učita
 window.onload = function () {
     ucitajStanje();
