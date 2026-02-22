@@ -9,7 +9,7 @@ class Igra(db.Model):
     br_bodova_vi = db.Column(db.Integer, default=0)
     br_bodova_mi = db.Column(db.Integer, default=0)
     
-    zadnji_dijelio = db.Column(db.Integer, db.ForeignKey('igrac.id'))
+    zadnji_dijelio = db.Column(db.Integer, db.ForeignKey('igraci.id_igraca'))
 
     runde = db.relationship('RundaModel', backref='igra', lazy=True, cascade="all, delete-orphan")
 
@@ -42,7 +42,7 @@ class RundaKarte(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id_runde = db.Column(db.Integer, db.ForeignKey('runda.id_runde'), nullable=False)
-    id_igraca = db.Column(db.Integer, db.ForeignKey('igrac.id'), nullable=False)
+    id_igraca = db.Column(db.Integer, db.ForeignKey('igraci.id_igraca'), nullable=False)
 
     oznaka_karte = db.Column(db.String(2), nullable=False) # NPR. T9, Pk I SLIČNO
     

@@ -78,15 +78,14 @@ def pridruzi_se():
         soba.igrac3_id = current_id_igraca
     elif soba.igrac4_id is None:
         soba.igrac4_id = current_id_igraca
+    else:
+        # AKO IGRAČ NIJE VEĆ U SOBI, A IMAMO 4 IGRAČA UNUTRA, BACI GREŠKU
+        return redirect(url_for('lobby.prikaz_lobbyja'))
         
     # AKO SU SVA 4 MJESTA POPUNJENA ONDA POKRENI IGRU
     if soba.igrac1_id and soba.igrac2_id and soba.igrac3_id and soba.igrac4_id:
         nova_igra = Igra(id_sobe=soba.id_sobe)
         db.session.add(nova_igra)
-    else:
-        # AKO IGRAČ NIJE VEĆ U SOBI, A IMAMO 4 IGRAČA UNUTRA, BACI GREŠKU
-        flash("Soba je puna!", "lobby_info")
-        return redirect(url_for('lobby.prikaz_lobbyja'))
 
     # AŽURIRAJ REDAK I POŠALJI IGRAČA U SOBU
     db.session.commit()
