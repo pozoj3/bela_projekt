@@ -18,7 +18,7 @@ def checklogin():
     password = request.form.get('password')
 
     if not username or not password:
-        flash("Neispravno korisničko ime ili lozinka.")
+        flash("Neispravno korisničko ime ili lozinka.","auth_error")
         return redirect(url_for('auth.index'))
 
     korisnik = Igrac.query.filter_by(username=username).first()
@@ -28,12 +28,12 @@ def checklogin():
 
         # AKO POSTOJI USER, ONDA PROVJERI ŠIFRU
         if not korisnik.check_password(password):
-            flash("Neispravno korisničko ime ili lozinka.")
+            flash("Neispravno korisničko ime ili lozinka.", "auth_error")
             return redirect(url_for('auth.index'))
 
         # AKO SMO OVO PREŽIVJELI LOGIN JE DOBAR, PROVJERI JEL REGISTRIRAN
         if not korisnik.jel_registriran:
-            flash("Korisnik nije dovršio registraciju.")
+            flash("Korisnik nije dovršio registraciju.", "auth_error")
             return redirect(url_for('auth.index'))
 
         # POSTAVI SESSION AKO JE SVE PRIJE PROSLO
@@ -41,12 +41,12 @@ def checklogin():
         session['username'] = korisnik.username
 
         # SVE JE DOBRO, PREUSMJERI KORISNIKA NA LOBBY
-        flash("Uspješno ste prijavljeni!")
+        flash("Uspješno ste prijavljeni!", "auth_error")
         return redirect(url_for('lobby.prikaz_lobbyja'))
 
 
     # AKO USER NE POSTOJI
-    flash("Korisnik ne postoji.")
+    flash("Korisnik ne postoji.", "auth_error")
     return redirect(url_for('auth.index'))
 
 
@@ -59,13 +59,13 @@ def register():
 
     # PROVJERA DA LI SU SVA POLJA POPUNJENA
     if not username or not password or not mail:
-        flash("Sva polja su obavezna.")
+        flash("Sva polja su obavezna.", "auth_error")
         return redirect(url_for('auth.index'))
 
     # PROVJERA POSTOJI LI USER
     postoji = Igrac.query.filter_by(username=username).first()
     if postoji:
-        flash("Korisničko ime već postoji.")
+        flash("Korisničko ime već postoji.", "auth_error")
         return redirect(url_for('auth.index'))
 
     # SVE JE DOBRO, KREIRAJ NOVOG KORISNIKA
@@ -84,7 +84,7 @@ def register():
     db.session.add(novi_igrac)
     db.session.commit()
 
-    flash("Registracija uspješna!")
+    flash("Registracija uspješna!", "auth_error")
     return redirect(url_for('auth.index'))
 
 
@@ -92,5 +92,5 @@ def register():
 @auth_bp.route('/logout')
 def logout():
     session.clear()
-    flash("Odjavljeni ste.")
+    flash("Odjavljeni ste.", "auth_error")
     return redirect(url_for('auth.login'))

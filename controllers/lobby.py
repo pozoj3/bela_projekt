@@ -43,7 +43,7 @@ def kreiraj_sobu():
     db.session.commit()
     
 
-    flash(f"Soba {nova_soba.id_sobe} uspješno kreirana!", "success")
+    flash(f"Soba {nova_soba.id_sobe} uspješno kreirana!", "lobby_info")
     return redirect(url_for('lobby.ulazak_u_sobu', id_sobe=nova_soba.id_sobe))
 
 
@@ -63,7 +63,7 @@ def pridruzi_se():
     
     # AKO GA NISI PRONAŠAO, BACI GREŠKU
     if not soba:
-        flash("Soba ne postoji!", "danger")
+        flash("Soba ne postoji!", "lobby_info")
         return redirect(url_for('lobby.prikaz_lobbyja'))
 
     # PROVJERI JE LI IGRAČ VEĆ U SOBI
@@ -80,7 +80,7 @@ def pridruzi_se():
         # OVDJE MOŽEMO UBACITI DA SE IGRA POKRENE KAD IMAMO 4 IGRAČA
     else:
         # AKO IGRAČ NIJE VEĆ U SOBI, A IMAMO 4 IGRAČA UNUTRA, BACI GREŠKU
-        flash("Soba je puna!", "warning")
+        flash("Soba je puna!", "lobby_info")
         return redirect(url_for('lobby.prikaz_lobbyja'))
 
     # AŽURIRAJ REDAK I POŠALJI IGRAČA U SOBU
@@ -101,3 +101,33 @@ def ulazak_u_sobu(id_sobe):
 
     # AKO IGRE NEMA IDI NA ČEKAONICU
     return render_template('cekaonica.html', soba=soba)
+
+# RUTA ZA DOHVAĆANJE STANJA SOBE (ZA ČEKAONICU)
+@lobby_bp.route('/stanje_sobe/<int:id_sobe>')
+def stanje_sobe(id_sobe):
+
+    # PROVJERA POSTOJI LI SOBA
+    soba = Soba.query.get_or_404(id_sobe)
+
+    # PROVJERA POSTOJI LI IGRA VEĆ ZA TU SOBU
+    igra = Igra.query.filter_by(id_sobe=id_sobe).first()
+
+    # DOHVATI SVE IGRAČE U SOBI
+    igraci = [
+        soba.igrac1_id,
+        soba.igrac2_id,
+        soba.igrac3_id,
+        soba.igrac4_id
+    ]
+
+    # IZBROJI KOLIKO IH STVARNO IMA (IGNORIRAJ None)
+    broj_igraca = len([i for i in igraci if i is not None])
+
+    # VRATI PODATKE
+    return {
+        "status": "ok",
+        "igraci": igraci,
+        "broj_igraca": broj_igraca,
+        "igra_pokrenuta": True if igra else False,
+        "id_igre": igra.id_igre if igra else None
+    }

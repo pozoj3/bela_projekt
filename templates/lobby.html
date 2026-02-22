@@ -48,7 +48,7 @@
             </a>
         </div>
 
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(category_filter=["lobby_info", "lobby_error"]) %}
             {% if messages %}
                 <div class="flash-messages">
                     {% for message in messages %}
