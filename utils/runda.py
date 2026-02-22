@@ -146,6 +146,8 @@ class Runda:
             kljuc = f"S{indeks}"
         rjecnik[kljuc] = lista_karti_zvanja
 
+
+
     def zvanja_karte(self, br_igraca):
         #prvo gledamo za 4 iste
         ruka = self.ruke[br_igraca]
@@ -440,8 +442,14 @@ class Runda:
         self.osvojeni_stihovi_mi = osvojeni_stihovi_mi
         self.osvojeni_stihovi_vi = osvojeni_stihovi_vi
 
-
-
     
-    def tijek_runde(self, prvi_na_redu):
-        pass
+    def provjeri_belot(self):
+        for red in self.red_igranja:
+            if self.bodovi_zvanja[red] == 1001:
+                return True
+        return False
+
+
+
+
+

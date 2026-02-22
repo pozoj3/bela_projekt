@@ -87,6 +87,37 @@ def dohvati_rundu_objekt(id_igre):
     return runda_db, logika_runde, mapaSL
 
 
+
+def updateaj_statistiku(igra_db, pobjednicki_tim):
+    soba = Soba.query.get(igra_db.id_sobe)
+    if not soba:
+        return
+    
+    igrac1 = Igrac.query.get(soba.igrac1_id)
+    igrac2 = Igrac.query.get(soba.igrac2_id)
+    igrac3 = Igrac.query.get(soba.igrac3_id)
+    igrac4 = Igrac.query.get(soba.igrac4_id)
+
+    lista_igraca = [igrac1, igrac2, igrac3, igrac4]
+
+    for igrac in lista_igraca:
+        if igrac:
+            igrac.dodaj_odigranu()
+
+    if pobjednicki_tim == "mi":
+        soba.pobjede_tim_mi += 1
+        if igrac1: igrac1.dodaj_pobjedu()
+        if igrac3: igrac3.dodaj_pobjedu()
+    elif pobjednicki_tim == "vi":
+        soba.pobjede_tim_vi += 1
+        if igrac2: igrac2.dodaj_pobjedu()
+        if igrac4: igrac4.dodaj_pobjedu()
+
+
+
+
+
+
 @logika_bp.route('/pokreni_igru/<int:id_sobe>', methods=['POST'])
 def pokreni_igru(id_sobe):
     soba = Soba.query.get_or_404(id_sobe)
@@ -152,6 +183,8 @@ def pokreni_igru(id_sobe):
     return jsonify({"status": "uspjeh", "id_igre" : nova_igra.id_igre})
 
 
+
+
 @logika_bp.route("/zovi_aduta", methods = ['POST'])
 def zovi_aduta():
     data = request.json
@@ -168,11 +201,12 @@ def zovi_aduta():
         return jsonify({"status": "greska", "poruka" : "Runda nije pronađena."}), 404
     
     logicki_id = mapaSL.get(id_igraca_session)
-    if runda_db.faza_igre != "zvanje": #treba dodati fazu igre
+    if runda_db.faza_igre != "zvanje":
         return jsonify({"status": "greska", "poruka": "Zvanje aduta je već završilo."}), 400
     
     if logicki_id != runda_db.na_redu:
         return jsonify({"status": "greska", "poruka": "Niste vi na redu za zvanje!"}), 403
+    
     
 
     #igrac veli dalje
@@ -200,9 +234,31 @@ def zovi_aduta():
             logika_runde.sortiraj_ruku(i)
             logika_runde.zvanja_karte(i)
 
+        if logika_runde.provjeri_belot():
+            runda_db.faza_igre = "kraj"
+            igra_db = Igra.query.get(runda_db.id_igre)
+
+            if logika_runde.bodovi_zvanja[1] == 1001 or logika_runde.bodovi_zvanja[3] == 1001:
+                igra_db.br_bodova_mi += 1001
+                updateaj_statistiku(igra_db, "mi")
+            else:
+                igra_db.br_bodova_vi += 1001
+                updateaj_statistiku(igra_db, "vi")
+            db.session.commit()
+            return jsonify({
+                "status" : "ok", 
+                "poruka" : "Belot! Igra je gotova!",
+                "stanje": "kraj_igre",
+                "zvanja_mi" : runda_db.bodovi_zvanja_mi,
+                "zvanja_vi": runda_db.bodovi_zvanja_vi
+            })
+
+
         logika_runde.validna_zvanja()
         runda_db.bodovi_zvanja_mi = logika_runde.bodovi_zvanja[1] + logika_runde.bodovi_zvanja[3]
         runda_db.bodovi_zvanja_vi = logika_runde.bodovi_zvanja[2] + logika_runde.bodovi_zvanja[4]
+
+
 
         karte_talon_db = RundaKarte.query.filter_by(id_runde=runda_db.id_runde, tip="talon").all()
         for karta_db in karte_talon_db:
@@ -306,6 +362,9 @@ def odigraj_potez():
 
             if igra_db.br_bodova_mi >= 1001 or igra_db.br_bodova_vi >= 1001:
                 stanje_odgovor = "kraj_igre"
+
+                pobjednik = "mi" if igra_db.br_bodova_mi >= igra_db.br_bodova_vi else "vi"
+                updateaj_statistiku(igra_db= igra_db, pobjednicki_tim= pobjednik)
 
             else:
                 novi_djelitelj = 1 if runda_db.djelitelj == 4 else runda_db.djelitelj + 1
