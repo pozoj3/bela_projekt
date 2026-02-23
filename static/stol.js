@@ -5,7 +5,7 @@ window.onload = function () {
 };
 
 //dohvaćanje stanja igre svakih 5 sekundi
-setInterval(ucitajStanje, 5000);
+setInterval(ucitajStanje, 500);
 
 function ucitajStanje() {
 
@@ -193,12 +193,24 @@ function odigrajKartu(oznaka) {
     })
     .then(response => response.json())
     .then(data => {
-
         if (data.status !== "ok") {
             alert(data.poruka);
+            return;
         }
+        // Ako je štih gotov, zamrzni ekran 2 sekunde
+        if (data.stanje === "stih_gotov") {
 
-        ucitajStanje();
+            clearInterval(intervalId); // zaustavi auto refresh
+
+            setTimeout(() => {
+                ucitajStanje();
+                // ponovno pokreni refresh
+                intervalId = setInterval(ucitajStanje, 1000);
+            }, 2000);
+        }
+        else {
+            ucitajStanje();
+        }
     });
 }
 
