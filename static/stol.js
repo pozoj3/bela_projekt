@@ -83,7 +83,7 @@ function ucitajStanje() {
             if(imena){
                 Object.keys(imena).forEach(logickiId => {
 
-                    const relativna = (parseInt(logickiId) - mojId + 4) % 4;
+                    const relativna = (mojId - parseInt(logickiId) + 4) % 4;
 
                     let pozicija = "";
                     if (relativna === 0) pozicija = "dolje";
@@ -91,15 +91,15 @@ function ucitajStanje() {
                     if (relativna === 2) pozicija = "gore";
                     if (relativna === 3) pozicija = "desno";
 
-                    // ako je to moj igrač, ne prikazujemo ime
-                    if (relativna !== 0) {
+                    const imeDiv = document.createElement("div");
+                    imeDiv.innerText = imena[logickiId];
+                    imeDiv.className = "ime-igraca";
 
-                        const imeDiv = document.createElement("div");
-                        imeDiv.innerText = imena[logickiId];
-                        imeDiv.className = "ime-igraca";
-                        imeDiv.style.fontWeight = "bold";
-                        imeDiv.style.marginBottom = "5px";
-
+                    // Ako sam ja onda ime ide ispod moje ruke
+                    if (relativna === 0) {
+                        document.getElementById("moje-ime").innerText = imena[logickiId];
+                    } 
+                    else {
                         document.getElementById(pozicija).prepend(imeDiv);
                     }
                 });
@@ -112,7 +112,7 @@ function ucitajStanje() {
                 const igracKojiJeBacio = red[i];
 
                 // izračun relativne pozicije
-                const relativna = (igracKojiJeBacio - mojId + 4) % 4;
+                const relativna = (mojId - igracKojiJeBacio + 4) % 4;
 
                 let pozicija = "";
 
