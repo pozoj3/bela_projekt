@@ -486,6 +486,9 @@ def stanje_igre(id_igre):
     trenutni_bodovi_mi = runda_db.bodovi_mi + (runda_db.bodovi_zvanja_mi or 0)
     trenutni_bodovi_vi = runda_db.bodovi_vi + (runda_db.bodovi_zvanja_vi or 0)
 
+    kljuc_tima = "MI" if moj_logicki_id in [1,3] else "VI"
+
+
     stanje = { "status" : "ok",
               "faza_igre" : runda_db.faza_igre,
               "na_redu" : runda_db.na_redu,
@@ -502,7 +505,8 @@ def stanje_igre(id_igre):
               "rezultat_runde" : { "mi" : trenutni_bodovi_mi, "vi" : trenutni_bodovi_vi},
               "red_igranja": [int(x) for x in runda_db.red_igranja.split(",")] if runda_db.red_igranja else [],
               "rezultat_ukupno" : {"mi" : igra_db.br_bodova_mi, "vi" : igra_db.br_bodova_vi},
-              "imena_igraca": imena_igraca}
+              "imena_igraca": imena_igraca,
+              "kljuc_tima" : kljuc_tima}
     
     return jsonify(stanje)
 
