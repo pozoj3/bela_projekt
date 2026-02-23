@@ -152,13 +152,22 @@ function ucitajStanje() {
             //ZVANJE ADUTA
 
             const zvanjeDiv = document.getElementById("zvanje-aduta");
+            const daljeGumb = document.getElementById("gumb-dalje");
 
             if (data.faza_igre === "zvanje" &&
                 data.na_redu === data.id_ovog_igraca) {
 
                 zvanjeDiv.style.display = "block";
 
-            } else {
+                // Ako sam djelitelj (na musu), sakrij gumb dalje
+                if (data.id_ovog_igraca === data.djelitelj) {
+                    daljeGumb.style.display = "none";
+                } else {
+                    daljeGumb.style.display = "block";
+                }
+
+            } 
+            else {
                 zvanjeDiv.style.display = "none";
             }
 
