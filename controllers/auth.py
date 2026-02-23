@@ -88,6 +88,11 @@ def register():
     return redirect(url_for('auth.index'))
 
 
+@auth_bp.route('/registracija_str')
+def registracija_str():
+    return render_template('registracija.html')
+
+
 # RUTA ZA ODJAVU, ČIŠĆENJE SESSION-A I PREUSMJERAVANJE NA LOGIN
 @auth_bp.route('/logout')
 def logout():

@@ -1,59 +1,45 @@
 <!DOCTYPE html>
 <html lang="hr">
-    
-    <head>
-        
-    <title>BELA APLIKACIJA</title>
-    <link rel="stylesheet" href="static/style.css">  
+<head>
+    <meta charset="UTF-8">
+    <title>BELA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
 
-    </head>
-
-    <body>
-        <div id="middlebox">
-
-            <img src="static/FullLogo.png" alt="">
-
-            {% with messages = get_flashed_messages(category_filter=["auth_error"]) %}
-                {% if messages %}
-                    <div class="flash-messages">
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
-
-            <div id="loginbox">
-                <form method="POST" action="{{ url_for('auth.checklogin') }}">
-
-                    <label>KORISNIČKO IME:</label>
-                    <input type="text" name="username" required>
-
-                    <label>LOZINKA:</label>
-                    <input type="password" name="password" required>
-                    <button type="submit" id="prijava">PRIJAVA</button>
-
-                </form>
-
-                <hr>
-
-                <form method="POST" action="{{ url_for('auth.register') }}">
-
-                <label>NOVI USERNAME:</label>
-                <input type="text" name="username" required>
-
-                <label>EMAIL:</label>
-                <input type="email" name="mail" required>
-
-                <label>LOZINKA:</label>
-                <input type="password" name="password" required>
-
-                <button type="submit">REGISTRACIJA</button>
-
-            </form>
-            </div>
-
+    <div id="middlebox">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='FullLogo.png') }}" alt="Bela Logo">
         </div>
-    </body>
-    
+
+        {% with messages = get_flashed_messages(category_filter=["auth_error"]) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p class="error-text">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div id="loginbox">
+            <form method="POST" action="{{ url_for('auth.checklogin') }}">
+                <label for="username">KORISNIČKO IME:</label>
+                <input type="text" name="username" id="username" placeholder="Unesite username" required>
+
+                <label for="password">LOZINKA:</label>
+                <input type="password" name="password" id="password" placeholder="******" required>
+
+                <button type="submit" id="prijava">PRIJAVA</button>
+            </form>
+
+            <hr>
+
+            <div class="registration-link">
+                <p>Nemate profil? <a href="{{ url_for('auth.registracija_str') }}">Registrirajte se. :)</a></p>
+            </div>
+        </div>
+    </div>
+
+</body>
 </html>
