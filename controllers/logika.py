@@ -141,6 +141,15 @@ def updateaj_statistiku(igra_db, pobjednicki_tim):
 def pokreni_igru(id_sobe):
     soba = Soba.query.get_or_404(id_sobe)
 
+    #Provjera jesu li sva 4 mjesta popunjena
+    if not all([soba.igrac1_id, soba.igrac2_id, soba.igrac3_id, soba.igrac4_id]):
+        flash("Nisu sva mjesta popunjena!", "auth_error")
+        return redirect(url_for('lobby.cekaonica', id_sobe=id_sobe))
+    
+    if session.get("id_igraca") != soba.igrac1_id:
+        flash("Samo kreator sobe pokrenuti igru.", "auth_error")
+        return redirect(url_for('lobby.cekaonica', id_sobe=id_sobe))
+
     nova_igra = Igra(id_sobe = id_sobe, zadnji_dijelio = 1) 
     db.session.add(nova_igra)
     db.session.flush()
