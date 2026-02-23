@@ -293,7 +293,8 @@ def zovi_aduta():
             logika_runde.pomoca_za_red(prvi_baca + 2),
             logika_runde.pomoca_za_red(prvi_baca + 3)
         ]
-        runda_db.red_igranja = ",".join(str(x) for x in red_liste)
+        
+        runda_db.na_redu = prvi_baca
         logika_runde.red_igranja = red_liste
 
         db.session.commit()
@@ -457,7 +458,7 @@ def stanje_igre(id_igre):
         return jsonify({"status": "greska", "poruka": "Runda nije pronađena."})
     
     igra_db = Igra.query.get(id_igre)
-    logicki_id = mapaSL.get(id_igraca_session)
+    moj_logicki_id = mapaSL.get(id_igraca_session)
 
     mapaLS, _ = dohvati_mapu_igraca(id_igre)
     imena_igraca = {}
@@ -469,8 +470,8 @@ def stanje_igre(id_igre):
     stol_oznake = [k.oznaka for k in logika_runde.karte_na_stolu]
 
     karta_ruka_oznake = []
-    if logicki_id and logicki_id in logika_runde.ruke:
-        karta_ruka_oznake = [k.oznaka for k in logika_runde.ruke[logicki_id]]
+    if moj_logicki_id and moj_logicki_id in logika_runde.ruke:
+        karta_ruka_oznake = [k.oznaka for k in logika_runde.ruke[moj_logicki_id]]
 
     trenutni_bodovi_mi = runda_db.bodovi_mi + (runda_db.bodovi_zvanja_mi or 0)
     trenutni_bodovi_vi = runda_db.bodovi_vi + (runda_db.bodovi_zvanja_vi or 0)
@@ -481,7 +482,7 @@ def stanje_igre(id_igre):
               "djelitelj" : runda_db.djelitelj,
               "adut" : runda_db.adut,
               "igrac_koji_zove" : runda_db.igrac_koji_zove,
-              "id_ovog_igraca" : logicki_id,
+              "id_ovog_igraca" : moj_logicki_id,
               "karte_igraca" : karta_ruka_oznake,
               "stol" : stol_oznake,
               "zvanja": {
