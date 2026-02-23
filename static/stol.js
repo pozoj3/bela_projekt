@@ -39,20 +39,34 @@ function ucitajStanje() {
                 document.getElementById("na-redu").innerText = data.na_redu;
             }
             
-            //REZULTAT RUNDE (bez zvanja)
-            document.getElementById("mi-runda").innerText = data.rezultat_runde.mi;
-            document.getElementById("vi-runda").innerText = data.rezultat_runde.vi;
+            let rundaMi = data.rezultat_runde.mi;
+            let rundaVi = data.rezultat_runde.vi;
 
+            let zvanjaMi = data.zvanja.mi;
+            let zvanjaVi = data.zvanja.vi;
 
-            //BODOVI ZVANJA
-            document.getElementById("zvanja-mi").innerText = data.zvanja.mi;
-            document.getElementById("zvanja-vi").innerText = data.zvanja.vi;
+            let ukupnoMi = data.rezultat_ukupno.mi;
+            let ukupnoVi = data.rezultat_ukupno.vi;
 
+            //Ako je igrač u timu "VI", zamijenimo perspektivu(tim "MI" su igrač 1 i 3 a tim "VI" su igrač 2 i 4)
+            if (data.kljuc_tima === "VI") {
 
-            //UKUPNI REZULTAT IGRE
-            document.getElementById("mi-ukupno").innerText = data.rezultat_ukupno.mi;
-            document.getElementById("vi-ukupno").innerText = data.rezultat_ukupno.vi;
+                [rundaMi, rundaVi] = [rundaVi, rundaMi];
+                [zvanjaMi, zvanjaVi] = [zvanjaVi, zvanjaMi];
+                [ukupnoMi, ukupnoVi] = [ukupnoVi, ukupnoMi];
+            }
 
+            // REZULTAT RUNDE
+            document.getElementById("mi-runda").innerText = rundaMi;
+            document.getElementById("vi-runda").innerText = rundaVi;
+
+            // BODOVI ZVANJA
+            document.getElementById("zvanja-mi").innerText = zvanjaMi;
+            document.getElementById("zvanja-vi").innerText = zvanjaVi;
+
+            // UKUPNI REZULTAT
+            document.getElementById("mi-ukupno").innerText = ukupnoMi;
+            document.getElementById("vi-ukupno").innerText = ukupnoVi;
 
             //KARTE NA STOLU
 
