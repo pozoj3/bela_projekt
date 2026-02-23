@@ -1,5 +1,5 @@
 body{
-    background-color: #2D4F32; /* Tamno zelena (izvedena iz Lista) */
+    background-color: #2D4F32;
     margin: 0;
     display: flex;
     justify-content: center;
@@ -8,8 +8,10 @@ body{
     font-family: sans-serif;
 }
 
+/* ZA LOGIN.html */
+
 #middlebox{
-    background-color: #1E3622; /* Još tamnija zelena za dubinu */
+    background-color: #1E3622;
     border-radius: 25px;
     padding: 25px;
     width: 60vh;
@@ -31,7 +33,7 @@ body{
 }
 
 label {
-    color: #F9ECD2; /* Krem boja iz loga */
+    color: #F9ECD2;
     font-weight: bold;
     font-size: 0.85em;
     margin-bottom: 5px;
@@ -39,18 +41,18 @@ label {
 
 #loginbox hr {
     border: 0;
-    border-top: 1px solid #78AE45; /* Svijetlo zelena sa lista */
+    border-top: 1px solid #78AE45;
     margin: 20px 0;
 }
 
 .registration-link {
     text-align: center;
     font-size: 0.9em;
-    color: #F9ECD2; /* Krem bijela za tekst */
+    color: #F9ECD2;
 }
 
 .registration-link a {
-    color: #E8C14B; /* Zlatno žuta sa žira */
+    color: #E8C14B;
     text-decoration: none;
     font-weight: bold;
 }
@@ -69,7 +71,7 @@ input {
     padding: 12px;
     border-radius: 8px;
     border: 1px solid #78AE45;
-    background-color: #FDF8EE; /* Krem pozadina inputa */
+    background-color: #FDF8EE;
 }
 
 button {
@@ -77,7 +79,7 @@ button {
     padding: 12px;
     border-radius: 8px;
     border: none;
-    background-color: #52A742; /* Jaka zelena iz loga */
+    background-color: #52A742;
     color: white;
     font-weight: bold;
     cursor: pointer;
@@ -85,7 +87,106 @@ button {
 }
 
 button:hover {
-    background-color: #47704C; /* Tamnija zelena na hover */
+    background-color: #47704C;
+}
+
+/* Za REGISTRACIJA.html */
+
+#srednji-okvir {
+    background-color: #1E3622;
+    border-radius: 25px;
+    padding: 25px;
+    width: 60vh;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.logo-slika {
+    display: block;
+    max-width: 80%;
+    height: auto;
+    margin: 0 auto 20px auto;
+}
+
+#obrazac-kontejner {
+    width: 100%;
+}
+
+.obavijesti-kontejner {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.tekst-greske {
+    color: #F44336;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.9em;
+    margin: 5px 0;
+}
+
+#obrazac-kontejner label {
+    display: block;
+    color: #F9ECD2;
+    font-weight: bold;
+    font-size: 0.85em;
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
+
+#obrazac-kontejner input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #78AE45;
+    background-color: #FDF8EE;
+    color: #1A0505;
+    font-weight: bold;
+}
+
+.glavni-gumb {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background-color: #52A742;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.glavni-gumb:hover {
+    background-color: #47704C;
+}
+
+.razdjelnica {
+    border: 0;
+    border-top: 1px solid #78AE45;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.donji-link {
+    text-align: center;
+    font-size: 0.9em;
+    color: #F9ECD2;
+}
+
+.donji-link a {
+    color: #E8C14B; /* Zlatna boja linka */
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.donji-link a:hover {
+    text-decoration: underline;
 }
 
 .cekaonica {

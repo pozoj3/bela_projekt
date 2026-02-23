@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <title>BELA - Registracija</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div id="srednji-okvir">
+        <img src="{{ url_for('static', filename='FullLogo.png') }}" alt="Bela Logo" class="logo-slika">
+
+        {% with messages = get_flashed_messages(category_filter=["auth_error"]) %}
+            {% if messages %}
+                <div class="obavijesti-kontejner">
+                    {% for message in messages %}
+                        <p class="tekst-greske">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div id="obrazac-kontejner">
+            <form method="POST" action="{{ url_for('auth.register') }}">
+                <label>KORISNIČKO IME:</label>
+                <input type="text" name="username" placeholder="Odaberi username" required>
+
+                <label>EMAIL:</label>
+                <input type="email" name="mail" placeholder="tvoj@email.com" required>
+
+                <label>LOZINKA:</label>
+                <input type="password" name="password" placeholder="Min. 6 znakova" required>
+
+                <button type="submit" class="glavni-gumb">KREIRAJ RAČUN</button>
+            </form>
+
+            <hr class="razdjelnica">
+
+            <div class="donji-link">
+                <p>Već imate profil? <a href="{{ url_for('auth.index') }}">Prijavite se ovdje.</a></p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
