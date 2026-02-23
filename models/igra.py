@@ -48,3 +48,13 @@ class RundaKarte(db.Model):
     
     # RUKA, IGRAČU VIDLJIVA U RUCI, TALON, ZADNJE DVIJE KARTE DO ZVANJA ADUTA, ODIGRANA, KARTA ODIGRANA
     tip = db.Column(db.Enum('ruka', 'talon', 'odigrana', 'stol'), nullable=False)
+
+class RundaZvanja(db.Model):
+    __tablename__ = 'runda_zvanja'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_runde = db.Column(db.Integer, db.ForeignKey('runda.id_runde'), nullable=False)
+    id_igraca = db.Column(db.Integer, db.ForeignKey('igraci.id_igraca'), nullable=False)
+
+    karte_zvanja = db.Column(db.String(20), nullable=True)
+    bodovi_zvanja = db.Column(db.Integer, nullable=True)

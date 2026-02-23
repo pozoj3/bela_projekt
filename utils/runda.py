@@ -211,6 +211,8 @@ class Runda:
         self.bodovi_zvanja[br_igraca] = bodovi
         self.popis_zvanja[br_igraca] = temp_sva
 
+
+
     def validna_zvanja(self):
         vrijednosti_za_zvanje_skala = {
             "7": 7,
@@ -280,6 +282,8 @@ class Runda:
             self.popis_zvanja[3] = {}
             self.bodovi_zvanja[1] = 0
             self.bodovi_zvanja[3] = 0
+        
+        self.drugi_format_popisa_zvanja()
 
 
     def jel_ima_belu(self, br_igraca, pokusna_karta):
@@ -360,16 +364,15 @@ class Runda:
 
     #vraca jel se karta more baciti ili ne
     def baci_kartu(self, pokusana_karta, br_igraca):
-        #br_igraca = self.red_igranja[len(self.karte_na_stolu) - 1] ovo valda ne treba
 
         if self.postivanje_boje(pokusana_karta, br_igraca) and self.postivanje_ibera(pokusana_karta, br_igraca) and pokusana_karta in self.ruke[br_igraca] and self.jel_na_redu(br_igraca):
-            self.jel_ima_belu(br_igraca, pokusana_karta)
+            bool_bela = self.jel_ima_belu(br_igraca, pokusana_karta)
             self.karte_na_stolu.append(pokusana_karta)
             self.bacene_karte[br_igraca].append(pokusana_karta)
             self.ruke[br_igraca].remove(pokusana_karta)
-            return True
+            return True, bool_bela
         
-        return False
+        return False, False
     
 
 
@@ -423,7 +426,8 @@ class Runda:
     
     def postavi_stanje_iz_baze(self, adut, igrac_koji_zove, red_igranja, broj_stiha, 
                                bodovi_mi, bodovi_vi, bodovi_zvanja_mi, bodovi_zvanja_vi,
-                               osvojeni_stihovi_mi, osvojeni_stihovi_vi):
+                               osvojeni_stihovi_mi, osvojeni_stihovi_vi,
+                               zvanja_list):
         
         self.adut = adut if adut else ""
         self.igrac_koji_zove = igrac_koji_zove if igrac_koji_zove else 0
@@ -441,13 +445,52 @@ class Runda:
         
         self.osvojeni_stihovi_mi = osvojeni_stihovi_mi
         self.osvojeni_stihovi_vi = osvojeni_stihovi_vi
-
+        
+        if zvanja_list:
+            self.novi_popis_zvanja = zvanja_list
+        else:
+            self.novi_popis_zvanja = {1: {}, 2: {}, 3: {}, 4: {}}
     
+
+
     def provjeri_belot(self):
         for red in self.red_igranja:
             if self.bodovi_zvanja[red] == 1001:
                 return True
         return False
+    
+    def drugi_format_popisa_zvanja(self):
+        self.novi_popis_zvanja = {
+            1 : {},
+            2 : {},
+            3 : {},
+            4 : {}
+        }
+
+        for tren_igrac, igraceva_zvanja in self.popis_zvanja.items():
+            temp_pop = {}
+            for ime_zvanja, zapis_zvanja in igraceva_zvanja.items():
+                if "S" in ime_zvanja:
+                    if len(zapis_zvanja) == 3:
+                        bod = 20
+                    elif len(zapis_zvanja) == 4:
+                        bod = 50
+                    elif len(zapis_zvanja) == 8:
+                        bod = 1001
+                    else:
+                        bod = 100
+                elif ime_zvanja in ["c","b","k","a"]:
+                    bod = 100
+                elif ime_zvanja == "9":
+                    bod = 150
+                elif ime_zvanja == "d":
+                    bod = 200
+                
+                zap = ", ".join(zapis_zvanja)
+                temp_pop[zap] = bod
+  
+            self.novi_popis_zvanja[tren_igrac] = temp_pop
+
 
 
 

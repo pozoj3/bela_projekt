@@ -3,7 +3,7 @@ import random
 from database import db
 from utils.karta import Karta
 from utils.runda import Runda
-from models.igra import Igra, RundaModel, RundaKarte
+from models.igra import Igra, RundaModel, RundaKarte, RundaZvanja
 from models.soba import Soba
 from models.igrac import Igrac
 
@@ -53,6 +53,14 @@ def dohvati_rundu_objekt(id_igre):
     if runda_db.red_igranja:
         red_lista = [int(x) for x in runda_db.red_igranja.split(',')]
 
+    sva_zvanja_db = RundaZvanja.query.filter_by(id_runde = runda_db.id_runde).all()
+    ucitana_zvanja = {1: {}, 2: {}, 3: {}, 4: {}}
+
+    for zvanje in sva_zvanja_db:
+        log_id = mapaSL.get(zvanje.id_igraca)
+        if log_id:
+            ucitana_zvanja[log_id][zvanje.karte_zvanja] = zvanje.bodovi_zvanja
+
     logika_runde.postavi_stanje_iz_baze(
         adut = runda_db.adut,
         igrac_koji_zove = runda_db.igrac_koji_zove,
@@ -63,7 +71,8 @@ def dohvati_rundu_objekt(id_igre):
         bodovi_zvanja_mi = runda_db.bodovi_zvanja_mi,
         bodovi_zvanja_vi= runda_db.bodovi_zvanja_vi,
         osvojeni_stihovi_mi= runda_db.osvojeni_stihovi_mi,
-        osvojeni_stihovi_vi= runda_db.osvojeni_stihovi_vi
+        osvojeni_stihovi_vi= runda_db.osvojeni_stihovi_vi,
+        zvanja_list= ucitana_zvanja
     )
 
     sve_karte_db = RundaKarte.query.filter_by(id_runde = runda_db.id_runde).all()
@@ -290,6 +299,11 @@ def zovi_aduta():
         runda_db.bodovi_zvanja_vi = logika_runde.bodovi_zvanja[2] + logika_runde.bodovi_zvanja[4]
 
 
+        for ig, zv in logika_runde.novi_popis_zvanja.items():
+            for pz, bz in zv.items():
+                db.session.add(RundaZvanja(id_runde = runda_db.id_runde, id_igraca = mapaLS[ig], bodovi_zvanja = bz, karte_zvanja = pz))
+
+
 
         karte_talon_db = RundaKarte.query.filter_by(id_runde=runda_db.id_runde, tip="talon").all()
         for karta_db in karte_talon_db:
@@ -347,7 +361,7 @@ def odigraj_potez():
     
     pokusana_karta = Karta(kliknuta_karta)
     #print(f"DEBUG: Adut je {logika_runde.adut}, Stol je {logika_runde.karte_na_stolu}")
-    jelBacena = logika_runde.baci_kartu(pokusana_karta= pokusana_karta, br_igraca= logicki_id)
+    jelBacena, bool_bela = logika_runde.baci_kartu(pokusana_karta= pokusana_karta, br_igraca= logicki_id)
     
     if not jelBacena:
         return jsonify({"status" : "greska", "poruka" : "Ne mozete baciti tu kartu, morate postivati pravila."})   
@@ -355,6 +369,9 @@ def odigraj_potez():
     karta_db = RundaKarte.query.filter_by(id_runde = runda_db.id_runde,
                 id_igraca = id_igraca_session, oznaka_karte = kliknuta_karta, tip = "ruka").first()
         
+    if bool_bela:
+        return jsonify({"status" : "pitanje"})
+    
     if karta_db:
         karta_db.tip = "stol"
         
@@ -486,7 +503,17 @@ def stanje_igre(id_igre):
     trenutni_bodovi_mi = runda_db.bodovi_mi + (runda_db.bodovi_zvanja_mi or 0)
     trenutni_bodovi_vi = runda_db.bodovi_vi + (runda_db.bodovi_zvanja_vi or 0)
 
-    kljuc_tima = "MI" if moj_logicki_id in [1,3] else "VI"
+    kljuc_tima = 13 if moj_logicki_id in [1,3] else 24
+
+
+    runda_zvanja_db = RundaZvanja.query.filter_by(id_runde = runda_db.id_runde).all()
+
+    zvanja2 = { "1": [], "2": [], "3": [], "4": [] }
+
+    for zvanje in runda_zvanja_db:
+        log_id = mapaSL.get(zvanje.id_igraca)
+        if log_id:
+            zvanja2[str(log_id)].append({"karte" : zvanje.karte_zvanja, "bodovi" : zvanje.bodovi_zvanja})
 
 
     stanje = { "status" : "ok",
@@ -502,11 +529,13 @@ def stanje_igre(id_igre):
                 "mi": runda_db.bodovi_zvanja_mi,
                 "vi": runda_db.bodovi_zvanja_vi
               },
+              "popisi_zvanja" : zvanja2,
               "rezultat_runde" : { "mi" : trenutni_bodovi_mi, "vi" : trenutni_bodovi_vi},
               "red_igranja": [int(x) for x in runda_db.red_igranja.split(",")] if runda_db.red_igranja else [],
               "rezultat_ukupno" : {"mi" : igra_db.br_bodova_mi, "vi" : igra_db.br_bodova_vi},
               "imena_igraca": imena_igraca,
-              "kljuc_tima" : kljuc_tima}
+              "kljuc_tima" : kljuc_tima
+              }
     
     return jsonify(stanje)
 
