@@ -110,28 +110,35 @@ def ulazak_u_sobu(id_sobe):
 # RUTA ZA DOHVAĆANJE STANJA SOBE (ZA ČEKAONICU)
 @lobby_bp.route('/stanje_sobe/<int:id_sobe>')
 def stanje_sobe(id_sobe):
-
     # PROVJERA POSTOJI LI SOBA
     soba = Soba.query.get_or_404(id_sobe)
 
     # PROVJERA POSTOJI LI IGRA VEĆ ZA TU SOBU
     igra = Igra.query.filter_by(id_sobe=id_sobe).first()
 
-    # DOHVATI SVE IGRAČE U SOBI
-    igraci = [
-        soba.igrac1_id,
-        soba.igrac2_id,
-        soba.igrac3_id,
-        soba.igrac4_id
-    ]
+    # DOHVATI OBJEKTE IGRAČA DA BISMO IMALI PRISTUP USERNAME-U
+    lista_idova = [soba.igrac1_id, soba.igrac2_id, soba.igrac3_id, soba.igrac4_id]
+
+    imena_igraca = []
+    for id_korisnika in lista_idova:
+        if id_korisnika is not None:
+            # DOHVAĆAMO IGRAČA PO ID-u
+            igrac = Igrac.query.get(id_korisnika)
+            if igrac:
+                imena_igraca.append(igrac.username)
+            else:
+                imena_igraca.append("Nepoznat")
+        else:
+            # AKO JE MJESTO PRAZNO, ŠALJEMO NONE, TU ĆE PISATI: "Čekanje..."
+            imena_igraca.append(None)
 
     # IZBROJI KOLIKO IH STVARNO IMA (IGNORIRAJ None)
-    broj_igraca = len([i for i in igraci if i is not None])
+    broj_igraca = len([i for i in imena_igraca if i is not None])
 
     # VRATI PODATKE
     return {
         "status": "ok",
-        "igraci": igraci,
+        "igraci": imena_igraca,  # Sada šaljemo ['Username1', 'Username2', None, None]
         "broj_igraca": broj_igraca,
         "igra_pokrenuta": True if igra else False,
         "id_igre": igra.id_igre if igra else None

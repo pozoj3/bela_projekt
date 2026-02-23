@@ -3,64 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <title>BELA - Lobby</title>
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
-
-<div class="lobby-wrapper">
-
-    <div class="lobby-box">
-
-        <h1>Dobrodošao, {{ igrac.username }} </h1>
-
-        <div class="stats-box">
-            <p><strong>Email:</strong> {{ igrac.mail }}</p>
-            <p><strong>Odigrane igre:</strong> {{ igrac.br_odigranih }}</p>
-            <p><strong>Pobjede:</strong> {{ igrac.br_pobjeda }}</p>
+    <header class="lobby-zaglavlje">
+        <div class="zaglavlje-prazno"></div>
+        <div class="zaglavlje-logo">
+            <img src="{{ url_for('static', filename='FullLogo.png') }}" alt="Bela Logo">
         </div>
+        <div class="zaglavlje-odjava">
+            <a href="{{ url_for('auth.logout') }}" class="gumb-odjava">ODJAVA</a>
+        </div>
+    </header>
 
-        <hr>
+    {% with messages = get_flashed_messages(category_filter=["lobby_info", "lobby_error"]) %}
+        {% if messages %}
+            <div class="obavijesti-lobby">
+                {% for message in messages %}
+                    <p class="tekst-greske">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
-        <div class="actions">
-
-            <form action="{{ url_for('lobby.kreiraj_sobu') }}" method="POST">
-                <button type="submit" class="btn-primary">
-                     Kreiraj novu sobu
-                </button>
-            </form>
-
-            <div class="join-room">
-                <form action="{{ url_for('lobby.pridruzi_se') }}" method="POST">
-                    <label>Unesi ID sobe:</label>
-                    <input type="number" name="id_sobe" placeholder="Npr. 12" required>
-                    <button type="submit" class="btn-secondary">
-                        Pridruži se
+    <main class="lobby-glavni-sadrzaj">
+        <div class="sadrzaj-lijeva-strana">
+            <div class="lobby-akcije">
+                <form action="{{ url_for('lobby.kreiraj_sobu') }}" method="POST" class="forma-kreiraj">
+                    <button type="submit" class="gumb-kreiraj-visoki">
+                        <span class="plus-ikona">+</span>
+                        KREIRAJ<br>NOVU SOBU
                     </button>
                 </form>
-            </div>
 
-        </div>
-
-        <div class="logout">
-            <a href="{{ url_for('auth.logout') }}" class="logout-btn">
-                Odjava
-            </a>
-        </div>
-
-        {% with messages = get_flashed_messages(category_filter=["lobby_info", "lobby_error"]) %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for message in messages %}
-                        <p>{{ message }}</p>
-                    {% endfor %}
+                <div class="pridruzi-se-okvir">
+                    <form action="{{ url_for('lobby.pridruzi_se') }}" method="POST" class="forma-pridruzi">
+                        <h3>UĐI U SOBU</h3>
+                        <div>
+                            <label>ID SOBE:</label>
+                            <input type="number" name="id_sobe" placeholder="Npr. 12" required>
+                        </div>
+                        <button type="submit" class="glavni-gumb">PRIDRUŽI SE</button>
+                    </form>
                 </div>
-            {% endif %}
-        {% endwith %}
+            </div>
+        </div>
 
-    </div>
-
-</div>
-
+        <aside class="lobby-profil-sidebar">
+            <div class="profil-unutar">
+                <h2>MOJ PROFIL</h2>
+                <hr class="razdjelnica">
+                <ul class="profil-lista">
+                    <li><strong>Igrač:</strong> <span>{{ igrac.username }}</span></li>
+                    <li><strong>Odigrane igre:</strong> <span>{{ igrac.br_odigranih }}</span></li>
+                    <li><strong>Pobjede:</strong> <span>{{ igrac.br_pobjeda }}</span></li>
+                </ul>
+            </div>
+        </aside>
+    </main>
 </body>
 </html>

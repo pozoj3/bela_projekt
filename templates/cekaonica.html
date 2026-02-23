@@ -2,24 +2,53 @@
 <html lang="hr">
 <head>
     <meta charset="UTF-8">
-    <title>BELA - ČEKAONICA</title>
-    <link rel="stylesheet" href="static/style.css">
+    <title>BELA - Čekaonica</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
+    <header class="lobby-zaglavlje">
+        <div class="zaglavlje-prazno"></div>
+        <div class="zaglavlje-logo">
+            <img src="{{ url_for('static', filename='FullLogo.png') }}" alt="Bela Logo">
+        </div>
+        <div class="zaglavlje-odjava">
+            <a href="{{ url_for('auth.logout') }}" class="gumb-odjava">ODJAVA</a>
+        </div>
+    </header>
 
-<div class="cekaonica">
+    <main class="cekaonica-kontejner">
+        <div class="cekaonica-box">
+            <div class="soba-info">
+                <h1>SOBA <span class="broj-sobe">{{ soba.id_sobe }}</span></h1>
+            </div>
 
-    OVO JE ČEKAONICA!!!
-    {{soba.id_sobe}}
+            <div class="timovi-mreza">
+                <div class="tim-stupac">
+                    <h3 class="naslov-tim mi">TIM MI</h3>
+                    <div id="igrac-1" class="igrac-kartica">Čekanje...</div>
+                    <div id="igrac-3" class="igrac-kartica">Čekanje...</div>
+                </div>
 
-</div>
+                <div class="tim-stupac">
+                    <h3 class="naslov-tim vi">TIM VI</h3>
+                    <div id="igrac-2" class="igrac-kartica">Čekanje...</div>
+                    <div id="igrac-4" class="igrac-kartica">Čekanje...</div>
+                </div>
+            </div>
 
-<script>
-const idSobe = {{ soba.id_sobe }};
-</script>
+            <div class="akcije-cekaonica">
+                <form id="forma-start" action="{{ url_for('logika.pokreni_igru', id_sobe=soba.id_sobe) }}" method="POST">
+                    <button type="submit" id="gumb-start" class="glavni-gumb" disabled>ZAPOČNI IGRU</button>
+                </form>
+                <p id="poruka-status">Čekamo 4 igrača...</p>
+            </div>
+        </div>
+    </main>
 
-<script src="/static/cekaonica.js"></script>
-
+    <script>
+        const idSobe = {{ soba.id_sobe }};
+    </script>
+    <script src="/static/cekaonica.js"></script>
 </body>
 </html>
