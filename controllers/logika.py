@@ -130,6 +130,8 @@ def pokreni_igru(id_sobe):
     djelitelj = 4 if prvi_na_redu == 1 else prvi_na_redu - 1
     nova_logika = Runda()
     nova_logika.promjesaj_karte(prvi_na_redu=prvi_na_redu)
+    for i in range(1, 5):
+        nova_logika.sortiraj_ruku(i)
 
     red_igranja_str = ",".join(str(x) for x in nova_logika.red_igranja)
 
@@ -237,11 +239,22 @@ def zovi_aduta():
 
         logika_runde.zovi_aduta(odluka, logicki_id)
 
+        mapaLS, _ = dohvati_mapu_igraca(id_igre)
+        RundaKarte.query.filter_by(id_runde=runda_db.id_runde).delete()
+
         for i in range(1,5):
             logika_runde.otkrij_karte(i)
             logika_runde.sortiraj_ruku(i)
             logika_runde.zvanja_karte(i)
 
+            for karta in logika_runde.ruke[i]:
+                db.session.add(RundaKarte(
+                    id_runde=runda_db.id_runde, 
+                    id_igraca=mapaLS[i], 
+                    oznaka_karte=karta.oznaka, 
+                    tip="ruka"
+                ))
+        
         if logika_runde.provjeri_belot():
             runda_db.faza_igre = "kraj"
             igra_db = Igra.query.get(runda_db.id_igre)
@@ -322,6 +335,7 @@ def odigraj_potez():
         return jsonify({"status" : "greska", "poruka" : "Niste na redu."})
     
     pokusana_karta = Karta(kliknuta_karta)
+    print(f"DEBUG: Adut je {logika_runde.adut}, Stol je {logika_runde.karte_na_stolu}")
     jelBacena = logika_runde.baci_kartu(pokusana_karta= pokusana_karta, br_igraca= logicki_id)
     
     if not jelBacena:
@@ -380,6 +394,8 @@ def odigraj_potez():
 
                 nova_logika = Runda()
                 nova_logika.promjesaj_karte(prvi_na_redu= prvi_igra)
+                for i in range(1, 5):
+                    nova_logika.sortiraj_ruku(i)
 
                 red_igranja_str = ",".join(str(x) for x in nova_logika.red_igranja)
 
@@ -390,9 +406,17 @@ def odigraj_potez():
                     djelitelj = novi_djelitelj,
                     na_redu = prvi_igra,
                     red_igranja = red_igranja_str,
-                    broj_stiha = 0, bodovi_mi = 0, bodovi_vi = 0
+                    broj_stiha = 0, 
+                    bodovi_mi = 0, 
+                    bodovi_vi = 0,
+                    adut = "", 
+                    igrac_koji_zove = 0, 
+                    pobjednik_stiha = 0,
+                    bodovi_zvanja_mi = 0, 
+                    bodovi_zvanja_vi = 0,
+                    osvojeni_stihovi_mi = 0, 
+                    osvojeni_stihovi_vi = 0
                 )
-
                 db.session.add(nova_runda_db)
                 db.session.flush()
 
@@ -408,14 +432,14 @@ def odigraj_potez():
                         db.session.add(RundaKarte(id_runde = nova_runda_db.id_runde,
                                 id_igraca = mapaLS[logicki_id], oznaka_karte = karta.oznaka, tip = "talon"))
         
-        else:
-            broj_karti_stol = len(logika_runde.karte_na_stolu)
-            iduci_igrac = logika_runde.red_igranja[broj_karti_stol]
-            runda_db.na_redu = iduci_igrac
+    else:
+        broj_karti_stol = len(logika_runde.karte_na_stolu)
+        iduci_igrac = logika_runde.red_igranja[broj_karti_stol]
+        runda_db.na_redu = iduci_igrac
 
-        db.session.commit()
+    db.session.commit()
 
-        return jsonify({"status" : "ok", "stanje" : stanje_odgovor, "na_redu" : runda_db.na_redu})
+    return jsonify({"status" : "ok", "stanje" : stanje_odgovor, "na_redu" : runda_db.na_redu})
         
 
     
@@ -434,6 +458,13 @@ def stanje_igre(id_igre):
     
     igra_db = Igra.query.get(id_igre)
     logicki_id = mapaSL.get(id_igraca_session)
+
+    mapaLS, _ = dohvati_mapu_igraca(id_igre)
+    imena_igraca = {}
+    for l_id, s_id in mapaLS.items():
+        if s_id:
+            igrac = Igrac.query.get(s_id)
+            imena_igraca[l_id] = igrac.username
 
     stol_oznake = [k.oznaka for k in logika_runde.karte_na_stolu]
 
@@ -459,7 +490,8 @@ def stanje_igre(id_igre):
               },
               "rezultat_runde" : { "mi" : trenutni_bodovi_mi, "vi" : trenutni_bodovi_vi},
               "red_igranja": [int(x) for x in runda_db.red_igranja.split(",")] if runda_db.red_igranja else [],
-              "rezultat_ukupno" : {"mi" : igra_db.br_bodova_mi, "vi" : igra_db.br_bodova_vi}}
+              "rezultat_ukupno" : {"mi" : igra_db.br_bodova_mi, "vi" : igra_db.br_bodova_vi},
+              "imena_igraca": imena_igraca}
     
     return jsonify(stanje)
 
