@@ -68,6 +68,8 @@ def dohvati_rundu_objekt(id_igre):
 
     sve_karte_db = RundaKarte.query.filter_by(id_runde = runda_db.id_runde).all()
 
+    temp_stol = []
+
     for karta_db in sve_karte_db:
         logicki_id = mapaSL.get(karta_db.id_igraca)
 
@@ -80,10 +82,18 @@ def dohvati_rundu_objekt(id_igre):
                 logika_runde.taloni[logicki_id].append(karta_log)
             elif karta_db.tip == 'stol':
                 logika_runde.karte_na_stolu.append(karta_log)
+                temp_stol.append({"igrac": logicki_id, "karta": karta_log})
             elif karta_db.tip == 'odigrana':
                 logika_runde.bacene_karte[logicki_id].append(karta_log)
+    
+    sort_stol = []
+    for id_red_igraca in logika_runde.red_igranja:
+        for stol_karta in temp_stol:
+            if stol_karta["igrac"] == id_red_igraca:
+                sort_stol.append(stol_karta["karta"])
+    
+    logika_runde.karte_na_stolu = sort_stol
                 
-
     return runda_db, logika_runde, mapaSL
 
 
@@ -336,7 +346,7 @@ def odigraj_potez():
         return jsonify({"status" : "greska", "poruka" : "Niste na redu."})
     
     pokusana_karta = Karta(kliknuta_karta)
-    print(f"DEBUG: Adut je {logika_runde.adut}, Stol je {logika_runde.karte_na_stolu}")
+    #print(f"DEBUG: Adut je {logika_runde.adut}, Stol je {logika_runde.karte_na_stolu}")
     jelBacena = logika_runde.baci_kartu(pokusana_karta= pokusana_karta, br_igraca= logicki_id)
     
     if not jelBacena:
