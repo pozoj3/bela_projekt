@@ -52,7 +52,7 @@ class RundaKarte(db.Model):
 class RundaZvanja(db.Model):
     __tablename__ = 'runda_zvanja'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_runda_zvanja = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id_runde = db.Column(db.Integer, db.ForeignKey('runda.id_runde'), nullable=False)
     id_igraca = db.Column(db.Integer, db.ForeignKey('igraci.id_igraca'), nullable=False)
 

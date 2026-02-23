@@ -550,9 +550,13 @@ def stanje_igre(id_igre):
 
 @logika_bp.route('/prikaz_stola/<int:id_igre>')
 def prikaz_stola(id_igre):
+    # Sigurnosna provjera: Ne puštaj neprijavljene na stol
     id_igraca_session = session.get("id_igraca")
     if not id_igraca_session:
-        return redirect(url_for('auth.index'))
-    trenutni_igrac = Igrac.query.get(id_igraca_session)
-    # Šaljemo id_igre i objekt igrac (za ime na dnu stola)
-    return render_template('stol.html', id_igre=id_igre, igrac=trenutni_igrac)
+        # Preusmjeri na login (promijeni 'auth.login' u onaj endpoint koji koristiš za prijavu)
+        return redirect(url_for('auth.login'))
+
+    trenutni_igrac = Igra.query.filter_by(id_igre = id_igraca_session)
+
+        # Renderiramo tvoj stol.html i šaljemo mu id_igre kako bi JS znao koju igru igramo
+    return render_template('stol.html', id_igre=id_igre, igrac = trenutni_igrac)
