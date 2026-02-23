@@ -1,235 +1,87 @@
+let intervalId;
 
-//ucitavanje stanja igre čim se stranica učita
 window.onload = function () {
     ucitajStanje();
+    intervalId = setInterval(ucitajStanje, 1500); // Malo sporije da ne guši server
 };
 
-//dohvaćanje stanja igre svakih 5 sekundi
-let intervalId = setInterval(ucitajStanje, 500);
-
 function ucitajStanje() {
-
     fetch(`/stanje_igre/${idIgre}`)
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
+            if (data.status !== "ok") return;
 
-            if (data.status !== "ok") {
-                alert(data.poruka);
-                return;
+            const adutMap = {"H": "Herc", "K": "Karo", "P": "Pik", "T": "Tref"};
+            document.getElementById("adut").innerText = adutMap[data.adut] || "-";
+            document.getElementById("na-redu").innerText = data.imena_igraca[data.na_redu] || "-";
+
+            let rMi = data.rezultat_runde.mi, rVi = data.rezultat_runde.vi;
+            let uMi = data.rezultat_ukupno.mi, uVi = data.rezultat_ukupno.vi;
+
+            if (data.kljuc_tima === 24) {
+                [rMi, rVi] = [rVi, rMi];
+                [uMi, uVi] = [uVi, uMi];
             }
 
-            // OSNOVNE INFORMACIJE
-            const adutMap = {
-            "H": "Herc",
-            "K": "Karo",
-            "P": "Pik",
-            "T": "Tref"
-            };
+            document.getElementById("mi-runda").innerText = rMi;
+            document.getElementById("vi-runda").innerText = rVi;
+            document.getElementById("mi-ukupno").innerText = uMi;
+            document.getElementById("vi-ukupno").innerText = uVi;
+            document.getElementById("zvanja-mi").innerText = data.zvanja.mi || 0;
+            document.getElementById("zvanja-vi").innerText = data.zvanja.vi || 0;
 
-            if (data.adut && adutMap[data.adut]) {
-                document.getElementById("adut").innerText = adutMap[data.adut];
-            } else {
-                document.getElementById("adut").innerText = "-";
-            }
-            
-            const imena = data.imena_igraca;
-            if (imena && imena[data.na_redu]) {
-                document.getElementById("na-redu").innerText = imena[data.na_redu];
-            } else {
-                document.getElementById("na-redu").innerText = data.na_redu;
-            }
-            
-            let rundaMi = data.rezultat_runde.mi;
-            let rundaVi = data.rezultat_runde.vi;
+            const mojId = parseInt(data.id_ovog_igraca);
+            if (isNaN(mojId)) return;
+            ["dolje", "lijevo", "gore", "desno"].forEach(p => document.getElementById(`karta-${p}`).innerHTML = "");
 
-            let zvanjaMi = data.zvanja.mi;
-            let zvanjaVi = data.zvanja.vi;
-
-            let ukupnoMi = data.rezultat_ukupno.mi;
-            let ukupnoVi = data.rezultat_ukupno.vi;
-
-            // REZULTAT RUNDE
-            document.getElementById("mi-runda").innerText = rundaMi;
-            document.getElementById("vi-runda").innerText = rundaVi;
-
-            // BODOVI ZVANJA
-            document.getElementById("zvanja-mi").innerText = zvanjaMi;
-            document.getElementById("zvanja-vi").innerText = zvanjaVi;
-
-            // UKUPNI REZULTAT
-            document.getElementById("mi-ukupno").innerText = ukupnoMi;
-            document.getElementById("vi-ukupno").innerText = ukupnoVi;
-
-            //KARTE NA STOLU
-
-            const mojId = data.id_ovog_igraca;
-            const red = data.red_igranja;
-            const karteNaStolu = data.stol;           
-
-            // očisti sve pozicije
-            ["dolje", "lijevo", "gore", "desno"].forEach(poz => {
-                document.getElementById(poz).innerHTML = "";
+            // Postavljanje karata na stol
+            data.stol.forEach((karta, i) => {
+                if (!data.red_igranja[i]) return;
+                const igracId = parseInt(data.red_igranja[i]);
+                const rel = (igracId - mojId + 4) % 4;
+                const pos = ["dolje", "lijevo", "gore", "desno"][rel];
+                document.getElementById(`karta-${pos}`).innerHTML = `<img src="/static/${karta}.png" class="karta-stol">`;
             });
 
-            // sada dodaj imena
-            if(imena){
-                Object.keys(imena).forEach(logickiId => {
-
-                    const relativna = (mojId - parseInt(logickiId) + 4) % 4;
-
-                    let pozicija = "";
-                    if (relativna === 0) pozicija = "dolje";
-                    if (relativna === 1) pozicija = "lijevo";
-                    if (relativna === 2) pozicija = "gore";
-                    if (relativna === 3) pozicija = "desno";
-
-                    const imeDiv = document.createElement("div");
-                    imeDiv.innerText = imena[logickiId];
-                    imeDiv.className = "ime-igraca";
-
-                    // Ako sam ja onda ime ide ispod moje ruke
-                    if (relativna === 0) {
-                        document.getElementById("moje-ime").innerText = imena[logickiId];
-                    } 
-                    else {
-                        document.getElementById(pozicija).prepend(imeDiv);
-                    }
-                });
-            }
-
-            // prolazimo kroz karte redom bacanja
-            for (let i = 0; i < karteNaStolu.length; i++) {
-
-                const karta = karteNaStolu[i];
-                const igracKojiJeBacio = red[i];
-
-                // izračun relativne pozicije
-                const relativna = (mojId - igracKojiJeBacio + 4) % 4;
-
-                let pozicija = "";
-
-                if (relativna === 0) pozicija = "dolje";
-                if (relativna === 1) pozicija = "lijevo";
-                if (relativna === 2) pozicija = "gore";
-                if (relativna === 3) pozicija = "desno";
-
-                const img = document.createElement("img");
-                img.src = `/static/${karta}.png`;
-                img.style.width = "70px";
-
-                document.getElementById(pozicija).appendChild(img);
-            }
-
-
-            // MOJA RUKA
-
-            const rukaDiv = document.getElementById("moja-ruka");
-            rukaDiv.innerHTML = "";
-
-            data.karte_igraca.forEach(karta => {
-
-                const img = document.createElement("img");
-                img.src = `/static/${karta}.png`;
-                img.style.width = "70px";
-                img.style.margin = "5px";
-                img.style.cursor = "pointer";
-
-                img.onclick = function () {
-                    odigrajKartu(karta);
-                };
-
-                rukaDiv.appendChild(img);
+            // Imena igrača
+            Object.keys(data.imena_igraca).forEach(idStr => {
+                const logId = parseInt(idStr);
+                const rel = (logId - mojId + 4) % 4;
+                const pos = ["dolje", "lijevo", "gore", "desno"][rel];
+                const el = document.getElementById(`ime-${pos}`);
+                if(el) el.innerText = data.imena_igraca[idStr];
             });
 
-            //ZVANJE ADUTA
+            // Moja ruka
+            document.getElementById("moja-ruka").innerHTML = data.karte_igraca.map(k =>
+                `<img src="/static/${k}.png" class="karta-png" onclick="odigrajKartu('${k}')">`
+            ).join("");
+
+            // Zvanje
+
+            const naRedu = parseInt(data.na_redu);
 
             const zvanjeDiv = document.getElementById("zvanje-aduta");
-            const daljeGumb = document.getElementById("gumb-dalje");
-
-            if (data.faza_igre === "zvanje" &&
-                data.na_redu === data.id_ovog_igraca) {
-
-                zvanjeDiv.style.display = "block";
-
-                // Ako sam djelitelj (na musu), sakrij gumb dalje
-                if (data.id_ovog_igraca === data.djelitelj) {
-                    daljeGumb.style.display = "none";
-                } else {
-                    daljeGumb.style.display = "block";
-                }
-
-            } 
-            else {
-                zvanjeDiv.style.display = "none";
-            }
-
-        });       
+            zvanjeDiv.style.display = (data.faza_igre === "zvanje" && naRedu === mojId) ? "block" : "none";
+            document.getElementById("gumb-dalje").style.display = (mojId === data.djelitelj) ? "none" : "inline-block";
+        });
 }
-
-
-
-//BACANJE KARTE
-
 
 function odigrajKartu(oznaka) {
-
     fetch("/odigraj_potez", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            id_igre: idIgre,
-            kliknuta_karta: oznaka
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status !== "ok") {
-            alert(data.poruka);
-            return;
-        }
-        // Ako je štih gotov, zamrzni ekran 2 sekunde
-        if (data.stanje === "stih_gotov") {
-
-            clearInterval(intervalId); // zaustavi auto refresh
-
-            setTimeout(() => {
-                ucitajStanje();
-                // ponovno pokreni refresh
-                intervalId = setInterval(ucitajStanje, 500);
-            }, 2000);
-        }
-        else {
-            ucitajStanje();
-        }
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({id_igre: idIgre, kliknuta_karta: oznaka})
+    }).then(res => res.json()).then(data => {
+        if (data.status !== "ok") alert(data.poruka);
+        ucitajStanje();
     });
 }
 
-
-
-//ZVANJE ADUTA
-
 function zoviAduta(odluka) {
-
     fetch("/zovi_aduta", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            id_igre: idIgre,
-            odluka: odluka
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-
-        if (data.status !== "ok") {
-            alert(data.poruka);
-        }
-
-        // Nakon zvanja ponovno učitaj stanje
-        ucitajStanje();
-    });
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({id_igre: idIgre, odluka: odluka})
+    }).then(() => ucitajStanje());
 }

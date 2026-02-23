@@ -1,84 +1,90 @@
-
 <!DOCTYPE html>
 <html lang="hr">
 <head>
     <meta charset="UTF-8">
     <title>BELA - Stol</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script>
-        const idIgre = {{ id_igre }};
-    </script>
-    <script src="/static/stol.js"></script>
+    <script>const idIgre = {{ id_igre }};</script>
+    <script src="/static/stol.js" defer></script>
 </head>
-<body>
+<body class="stol-body">
 
+    <header class="lobby-zaglavlje">
+        <div class="zaglavlje-prazno"></div>
+        <div class="zaglavlje-logo">
+            <img src="/static/FullLogo.png" alt="Bela Logo">
+        </div>
+        <div class="zaglavlje-odjava">
+            <a href="{{ url_for('auth.logout') }}" class="gumb-odjava">ODJAVA</a>
+        </div>
+    </header>
 
-<div class="stol-wrapper">
-
-    <!--INFORMACIJE-->
-    <div class="info">
-        <p><strong>Adut:</strong> <span id="adut"></span></p>
-        <p><strong>Na redu:</strong> <span id="na-redu"></span></p>
-        <p><strong>Ukupno:</strong> 
-            MI <span id="mi-ukupno"></span> - 
-            VI <span id="vi-ukupno"></span>
-        </p>
-        <p><strong>Bodovi zvanja:</strong></p>
-            <p>MI: <span id="zvanja-mi"></span></p>
-            <p>VI: <span id="zvanja-vi"></span></p>
-        <p><strong>Bodovi u rundi:</strong> 
-            MI <span id="mi-runda"></span> - 
-            VI <span id="vi-runda"></span>
-        </p>
-        
-    </div>
-
-    <hr>
-
-    <!-- KARTE NA STOLU -->
-    <div id="stol">
-        <div id="gore" class="pozicija gore"></div>
-
-        <div class="sredina">
-            <div id="lijevo" class="pozicija lijevo"></div>
-            <div id="desno" class="pozicija desno"></div>
+    <section class="status-bar">
+        <div class="status-info">
+            <div class="info-item">ADUT: <span id="adut" class="zlatni-tekst">-</span></div>
+            <div class="info-item">NA REDU: <span id="na-redu" class="zlatni-tekst">-</span></div>
         </div>
 
-        <div id="dolje" class="pozicija dolje"></div>
-    </div>
+        <div class="status-rezultat">
+            <div class="tim-rezultat">
+                MI <span id="mi-ukupno" class="veliki-bodovi">0</span>
+                <span class="runda-bodovi">(+<span id="mi-runda">0</span>)</span>
+            </div>
+            <div class="rezultat-razdjelnik">:</div>
+            <div class="tim-rezultat">
+                <span id="vi-ukupno" class="veliki-bodovi">0</span> VI
+                <span class="runda-bodovi">(+<span id="vi-runda">0</span>)</span>
+            </div>
+        </div>
 
-    <hr>
+        <div class="status-zvanja">
+            ZVANJA: MI <span id="zvanja-mi" class="zlatni-tekst">0</span> - VI <span id="zvanja-vi" class="zlatni-tekst">0</span>
+        </div>
+    </section>
 
-    <!-- MOJA RUKA -->
-    <div id="moja-ruka"></div>
-    <div id="moje-ime" class="moje-ime"></div>
+    <main class="igra-kontejner">
 
-    <hr>
+        <div class="stol-povrsina">
 
-    <!-- ZVANJE ADUTA -->
-    <div id="zvanje-aduta" style="display:none;">
+            <div class="igrac-pozicija gore">
+                <div id="ime-gore" class="igrac-krug">?</div>
+                <div id="karta-gore" class="pozicija-karte"></div>
+            </div>
 
-        <h3>Odaberi aduta</h3>
+            <div class="igrac-pozicija lijevo">
+                <div id="ime-lijevo" class="igrac-krug">?</div>
+                <div id="karta-lijevo" class="pozicija-karte"></div>
+            </div>
 
-        <img src="/static/herc64.png"
-            onclick="zoviAduta('H')" class="adut-gumb">
+            <div class="igrac-pozicija desno">
+                <div id="karta-desno" class="pozicija-karte"></div>
+                <div id="ime-desno" class="igrac-krug">?</div>
+            </div>
 
-        <img src="/static/karo64.png"
-            onclick="zoviAduta('K')" class="adut-gumb">
+            <div class="igrac-pozicija dolje">
+                <div id="karta-dolje" class="pozicija-karte"></div>
+            </div>
 
-        <img src="/static/pik64.png"
-            onclick="zoviAduta('P')" class="adut-gumb">
+            <div id="zvanje-aduta" class="zvanje-overlay" style="display: none;">
+                <h3>ODABERI ADUTA</h3>
+                <div class="adut-opcije">
+                    <img src="/static/herc64.png" class="adut-ikona" alt="Herc" onclick="zoviAduta('H')">
+                    <img src="/static/karo64.png" class="adut-ikona" alt="Karo" onclick="zoviAduta('K')">
+                    <img src="/static/pik64.png" class="adut-ikona" alt="Pik" onclick="zoviAduta('P')">
+                    <img src="/static/tref64.png" class="adut-ikona" alt="Tref" onclick="zoviAduta('T')">
+                </div>
+                <button id="gumb-dalje" class="glavni-gumb" style="width: 150px; margin: 0 auto; display: block;" onclick="zoviAduta('dalje')">DALJE</button>
+            </div>
 
-        <img src="/static/tref64.png"
-            onclick="zoviAduta('T')" class="adut-gumb">
+        </div>
 
-        <button id="gumb-dalje" onclick="zoviAduta('dalje')">Dalje</button>
+        <section class="moje-karte-sekcija">
+            <div id="moja-ruka" class="ruka-kontejner">
+                </div>
+            <div id="moje-ime" class="moje-ime-oznaka">{{ igrac.username }}</div>
+        </section>
 
-    </div>
-
-</div>
-
-
+    </main>
 
 </body>
 </html>

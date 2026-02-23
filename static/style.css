@@ -487,47 +487,235 @@ button:hover {
     outline: none;
 }
 
-.cekaonica {
-    background-color: #f9ecd2;
-}
+/* Za STOL.html */
 
-.stol {
+.stol-body {
+    background-color: #2D4F32;
+    margin: 0;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+}
+
+.status-bar {
+    margin-top: 80px;
+    background-color: #1a2e1d;
+    padding: 5px 20px; /* Smanjen padding */
+    height: 60px; /* Fiksna visina */
+    display: flex;
+    justify-content: space-around; /* Bolji raspored */
     align-items: center;
+    border-bottom: 2px solid #78AE45;
+    color: #F9ECD2;
+    font-size: 0.95em;
+    z-index: 50;
+}
+
+.status-info, .status-rezultat, .status-zvanja {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.info-item {
+    color: #78AE45;
+}
+
+.zlatni-tekst {
+    color: #E8C14B;
+    margin-left: 5px;
+}
+
+.veliki-bodovi {
+    font-size: 1.2em;
+    color: #FFD700;
+}
+
+.runda-bodovi {
+    font-size: 0.8em;
+    color: #a39882;
+}
+
+.rezultat-razdjelnik {
+    color: #78AE45;
+    font-size: 1.6em;
+}
+
+.igra-kontejner {
+    flex-grow: 1;
+    display: flex;
     justify-content: center;
-    height: 400px;
-}
-
-.sredina {
-    display: flex;
-    justify-content: space-between;
-    width: 400px;
-}
-
-.pozicija {
-    display: flex;
-    flex-direction: column;
     align-items: center;
+    position: relative;
+    padding-bottom: 150px;
 }
 
+.stol-povrsina {
+    background-color: #355E3B;
+    width: 650px; /* Smanjeno sa 750 */
+    height: 400px; /* Smanjeno sa 480 */
+    border: 15px solid #1E3622;
+    border-radius: 200px;
+    position: relative;
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.7);
+}
 
-.ime-igraca {
+.igrac-pozicija {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.igrac-krug {
+    width: 70px;
+    height: 70px;
+    background-color: #1a2e1d;
+    border: 3px solid #E8C14B;
+    border-radius: 50%;
+    color: #F9ECD2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-weight: bold;
-    color: white;
-    margin-bottom: 8px;
-}
-
-
-.moje-ime {
+    font-size: 0.85em;
     text-align: center;
-    font-weight: bold;
-    font-size: 18px;
-    margin-top: 8px;
-    color: yellow;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+    z-index: 10;
 }
 
-.gore { margin-bottom: 20px; }
-.dolje { margin-top: 20px; }
-.lijevo { margin-right: 40px; }
-.desno { margin-left: 40px; }
+.pozicija-karte {
+    width: 80px;
+    height: 115px;
+    border: 2px dashed rgba(120, 174, 69, 0.3);
+}
+
+.gore {
+    flex-direction: column;
+    top: -45px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.lijevo {
+    flex-direction: row;
+    top: 50%;
+    left: -45px;
+    transform: translateY(-50%);
+}
+
+.desno {
+    flex-direction: row;
+    top: 50%;
+    right: -45px;
+    transform: translateY(-50%);
+}
+
+.dolje {
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.karta-na-stolu, .karta-stol {
+    width: 80px;
+    height: auto;
+    border-radius: 5px;
+}
+
+.moje-karte-sekcija {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: linear-gradient(to top, #1a2e1d, transparent);
+    padding: 30px 0 10px 0;
+    text-align: center;
+}
+
+.ruka-kontejner {
+    display: flex;
+    justify-content: center;
+    perspective: 1000px;
+}
+
+.karta-png-placeholder {
+    width: 90px;
+    height: auto;
+    background-color: #f9ecd2;
+    border: 2px solid #5d5444;
+    border-radius: 10px;
+    margin-left: -40px;
+    box-shadow: -4px 0 10px rgba(0,0,0,0.4);
+    transition: transform 0.2s, margin 0.2s;
+    cursor: pointer;
+}
+
+.karta-png-placeholder:first-child,
+.karta-png:first-child {
+    margin-left: 0;
+}
+
+.karta-png {
+    width: 110px;
+    height: auto;
+    margin-left: -40px;
+    border-radius: 6px;
+    box-shadow: -4px 0 10px rgba(0,0,0,0.4);
+    transition: transform 0.2s, margin 0.2s;
+    cursor: pointer;
+}
+
+.karta-png-placeholder:hover,
+.karta-png:hover {
+    transform: translateY(-30px) scale(1.05);
+    margin-right: 15px;
+    z-index: 20;
+}
+
+.moje-ime-oznaka {
+    color: #E8C14B;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-top: 15px;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.zvanje-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(26, 46, 29, 0.95);
+    padding: 30px 40px;
+    border-radius: 20px;
+    border: 3px solid #E8C14B;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+    z-index: 100;
+}
+
+.zvanje-overlay h3 {
+    color: #F9ECD2;
+    margin-top: 0;
+    font-size: 1.3em;
+}
+
+.adut-opcije {
+    display: flex;
+    gap: 20px;
+    margin: 25px 0;
+}
+
+.adut-ikona {
+    width: 70px;
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.2s;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+}
+
+.adut-ikona:hover {
+    transform: scale(1.2);
+}

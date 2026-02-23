@@ -98,4 +98,4 @@ def registracija_str():
 def logout():
     session.clear()
     flash("Odjavljeni ste.", "auth_error")
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('auth.index'))
