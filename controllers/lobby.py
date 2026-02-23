@@ -14,7 +14,7 @@ def prikaz_lobbyja():
     # PROVJERA JE LI KORISNIK ULOGIRAN, AKO NIJE POŠALJEMO GA NA LOGIN
     id_igraca = session.get('id_igraca')
     if not id_igraca:
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.index'))
 
     # DOHVATI PODATKE O IGRACU
     korisnik = Igrac.query.get(id_igraca)
@@ -29,7 +29,7 @@ def kreiraj_sobu():
     # PROVJERA JE LI IGRAČ ULOGIRAN, AKO NE ŠALJEMO GA NA LOGIN
     current_id_igraca = session.get('id_igraca')
     if not current_id_igraca:
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.index'))
 
     # IZRADA NOVOG RETKA ZA SOBU, SAMO PRVI IGRAČ
     nova_soba = Soba(
@@ -57,7 +57,7 @@ def pridruzi_se():
     current_id_igraca = session.get('id_igraca')
     
     if not current_id_igraca:
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.index'))
 
     # SPREMI REDAK SOBE LOKALNO
     soba = Soba.query.get(id_sobe)

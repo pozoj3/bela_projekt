@@ -144,11 +144,11 @@ def pokreni_igru(id_sobe):
     #Provjera jesu li sva 4 mjesta popunjena
     if not all([soba.igrac1_id, soba.igrac2_id, soba.igrac3_id, soba.igrac4_id]):
         flash("Nisu sva mjesta popunjena!", "auth_error")
-        return redirect(url_for('lobby.cekaonica', id_sobe=id_sobe))
+        return redirect(url_for('lobby.ulazak_u_sobu', id_sobe=id_sobe))
     
     if session.get("id_igraca") != soba.igrac1_id:
         flash("Samo kreator sobe pokrenuti igru.", "auth_error")
-        return redirect(url_for('lobby.cekaonica', id_sobe=id_sobe))
+        return redirect(url_for('lobby.ulazak_u_sobu', id_sobe=id_sobe))
 
     nova_igra = Igra(id_sobe = id_sobe, zadnji_dijelio = 1) 
     db.session.add(nova_igra)
@@ -371,7 +371,7 @@ def odigraj_potez():
     
     pokusana_karta = Karta(kliknuta_karta)
     #print(f"DEBUG: Adut je {logika_runde.adut}, Stol je {logika_runde.karte_na_stolu}")
-    bool_bela = logika_runde.jel_ima_belu(pokusna_karta= pokusana_karta)
+    #bool_bela = logika_runde.jel_ima_belu(logicki_id, pokusana_karta)
     jelBacena = logika_runde.baci_kartu(pokusana_karta= pokusana_karta, br_igraca= logicki_id)
     
     if not jelBacena:
@@ -379,10 +379,6 @@ def odigraj_potez():
     
     karta_db = RundaKarte.query.filter_by(id_runde = runda_db.id_runde,
                 id_igraca = id_igraca_session, oznaka_karte = kliknuta_karta, tip = "ruka").first()
-    
-    if bool_bela:
-        logika_runde.bodovi_zvanja[logicki_id] += 20
-        db.session.add(RundaZvanja(id_runde = runda_db.id_runde, id_igraca = id_igraca_session, karte_zvanja = "Bela", bodovi_zvanja = 20))
     
     if karta_db:
         karta_db.tip = "stol"
@@ -556,7 +552,7 @@ def stanje_igre(id_igre):
 def prikaz_stola(id_igre):
     id_igraca_session = session.get("id_igraca")
     if not id_igraca_session:
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.index'))
     trenutni_igrac = Igrac.query.get(id_igraca_session)
     # Šaljemo id_igre i objekt igrac (za ime na dnu stola)
     return render_template('stol.html', id_igre=id_igre, igrac=trenutni_igrac)
