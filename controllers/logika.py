@@ -339,6 +339,7 @@ def odigraj_potez():
     id_igre = data.get("id_igre")
     kliknuta_karta = data.get("kliknuta_karta")
     id_igraca_session = session.get("id_igraca")
+    #odgovor_bela = data.get("odgovor_bela")
 
     if not id_igre:
         return jsonify({"status" : "greska", "poruka" : "Igra nije pronadena."})
@@ -361,16 +362,18 @@ def odigraj_potez():
     
     pokusana_karta = Karta(kliknuta_karta)
     #print(f"DEBUG: Adut je {logika_runde.adut}, Stol je {logika_runde.karte_na_stolu}")
-    jelBacena, bool_bela = logika_runde.baci_kartu(pokusana_karta= pokusana_karta, br_igraca= logicki_id)
+    bool_bela = logika_runde.jel_ima_belu(pokusna_karta= pokusana_karta)
+    jelBacena = logika_runde.baci_kartu(pokusana_karta= pokusana_karta, br_igraca= logicki_id)
     
     if not jelBacena:
         return jsonify({"status" : "greska", "poruka" : "Ne mozete baciti tu kartu, morate postivati pravila."})   
     
     karta_db = RundaKarte.query.filter_by(id_runde = runda_db.id_runde,
                 id_igraca = id_igraca_session, oznaka_karte = kliknuta_karta, tip = "ruka").first()
-        
+    
     if bool_bela:
-        return jsonify({"status" : "pitanje"})
+        logika_runde.bodovi_zvanja[logicki_id] += 20
+        db.session.add(RundaZvanja(id_runde = runda_db.id_runde, id_igraca = id_igraca_session, karte_zvanja = "Bela", bodovi_zvanja = 20))
     
     if karta_db:
         karta_db.tip = "stol"
@@ -542,11 +545,9 @@ def stanje_igre(id_igre):
 
 @logika_bp.route('/prikaz_stola/<int:id_igre>')
 def prikaz_stola(id_igre):
-    # Sigurnosna provjera: Ne puštaj neprijavljene na stol
     id_igraca_session = session.get("id_igraca")
     if not id_igraca_session:
-        # Preusmjeri na login (promijeni 'auth.login' u onaj endpoint koji koristiš za prijavu)
         return redirect(url_for('auth.login')) 
-        
-    # Renderiramo tvoj stol.html i šaljemo mu id_igre kako bi JS znao koju igru igramo
-    return render_template('stol.html', id_igre=id_igre)
+    
+    trenutni_igrac = Igrac.query.get(id_igraca_session)
+    return render_template('stol.html', id_igre=id_igre, igrac=trenutni_igrac)

@@ -56,5 +56,5 @@ class RundaZvanja(db.Model):
     id_runde = db.Column(db.Integer, db.ForeignKey('runda.id_runde'), nullable=False)
     id_igraca = db.Column(db.Integer, db.ForeignKey('igraci.id_igraca'), nullable=False)
 
-    karte_zvanja = db.Column(db.String(20), nullable=True)
+    karte_zvanja = db.Column(db.String(50), nullable=True)
     bodovi_zvanja = db.Column(db.Integer, nullable=True)
