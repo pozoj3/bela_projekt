@@ -1,4 +1,4 @@
-ac
+
 //ucitavanje stanja igre čim se stranica učita
 window.onload = function () {
     ucitajStanje();
@@ -66,7 +66,7 @@ function ucitajStanje() {
                 if (relativna === 3) pozicija = "desno";
 
                 const img = document.createElement("img");
-                img.src = `/static/img/${karta}.png`;
+                img.src = `/static/${karta}.png`;
                 img.style.width = "70px";
 
                 document.getElementById(pozicija).appendChild(img);
@@ -81,7 +81,7 @@ function ucitajStanje() {
             data.karte_igraca.forEach(karta => {
 
                 const img = document.createElement("img");
-                img.src = `/static/img/${karta}.png`;
+                img.src = `/static/${karta}.png`;
                 img.style.width = "70px";
                 img.style.margin = "5px";
                 img.style.cursor = "pointer";

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, session, flash, request
+from flask import Blueprint, render_template, redirect, url_for, session, flash, request, jsonify
 import random
 from database import db
 from utils.karta import Karta
@@ -118,7 +118,7 @@ def updateaj_statistiku(igra_db, pobjednicki_tim):
 
 
 
-@logika_bp.route('/pokreni_igru/<int:id_sobe>', methods=['POST'])
+@logika_bp.route('/pokreni_igru/<int:id_sobe>', methods=['GET', 'POST'])
 def pokreni_igru(id_sobe):
     soba = Soba.query.get_or_404(id_sobe)
 
@@ -127,6 +127,7 @@ def pokreni_igru(id_sobe):
     db.session.flush()
 
     prvi_na_redu = random.randint(1, 4)
+    djelitelj = 4 if prvi_na_redu == 1 else prvi_na_redu - 1
     nova_logika = Runda()
     nova_logika.promjesaj_karte(prvi_na_redu=prvi_na_redu)
 
@@ -135,13 +136,20 @@ def pokreni_igru(id_sobe):
     nova_runda_db = RundaModel(
         id_igre=nova_igra.id_igre,
         redni_broj=1,
-        djelitelj = djelitelj,
+        djelitelj=djelitelj,
         na_redu=prvi_na_redu,
         red_igranja=red_igranja_str,
         broj_stiha=0,
         bodovi_mi=0,
-        bodovi_vi=0
-        # adut i igrac_koji_zove ostaju prazni (NULL) jer se adut još ne zna!
+        bodovi_vi=0,
+        adut="",
+        igrac_koji_zove=0,
+        faza_igre="zvanje",
+        pobjednik_stiha=0,
+        bodovi_zvanja_mi=0,
+        bodovi_zvanja_vi=0,
+        osvojeni_stihovi_mi=0,
+        osvojeni_stihovi_vi=0
     )
     
     db.session.add(nova_runda_db)
@@ -180,7 +188,7 @@ def pokreni_igru(id_sobe):
 
     db.session.commit()
     
-    return jsonify({"status": "uspjeh", "id_igre" : nova_igra.id_igre})
+    return redirect(url_for('logika.prikaz_stola', id_igre=nova_igra.id_igre))
 
 
 
@@ -433,8 +441,8 @@ def stanje_igre(id_igre):
     if logicki_id and logicki_id in logika_runde.ruke:
         karta_ruka_oznake = [k.oznaka for k in logika_runde.ruke[logicki_id]]
 
-    trenutni_bodovi_mi = runda_db.bodovi_mi + runda_db.bodovi_zvanja_mi
-    trenutni_bodovi_vi = runda_db.bodovi_vi + runda_db.bodovi_zvanja_vi
+    trenutni_bodovi_mi = runda_db.bodovi_mi + (runda_db.bodovi_zvanja_mi or 0)
+    trenutni_bodovi_vi = runda_db.bodovi_vi + (runda_db.bodovi_zvanja_vi or 0)
 
     stanje = { "status" : "ok",
               "faza_igre" : runda_db.faza_igre,

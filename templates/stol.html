@@ -4,7 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <title>BELA - Stol</title>
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script>
+        const idIgre = {{ id_igre }};
+    </script>
+    <script src="/static/stol.js"></script>
 </head>
 <body>
 
@@ -55,16 +59,16 @@
 
         <h3>Odaberi aduta</h3>
 
-        <img src="static/herc64.png"
+        <img src="/static/herc64.png"
             onclick="zoviAduta('H')" class="adut-gumb">
 
-        <img src="static/karo64.png"
+        <img src="/static/karo64.png"
             onclick="zoviAduta('K')" class="adut-gumb">
 
-        <img src="static/pik64.png"
+        <img src="/static/pik64.png"
             onclick="zoviAduta('P')" class="adut-gumb">
 
-        <img src="static/tref64.png"
+        <img src="/static/tref64.png"
             onclick="zoviAduta('T')" class="adut-gumb">
 
         <button onclick="zoviAduta('dalje')">Dalje</button>
@@ -74,11 +78,6 @@
 </div>
 
 
-<script>
-const idIgre = {{ id_igre }};
-</script>
-
-<script src="static/stol.js"></script>
 
 </body>
 </html>
