@@ -30,14 +30,12 @@ function ucitajStanje() {
             document.getElementById("zvanja-mi").innerText = data.zvanja.mi || 0;
             document.getElementById("zvanja-vi").innerText = data.zvanja.vi || 0;
 
-            const mojId = parseInt(data.id_ovog_igraca);
-            if (isNaN(mojId)) return;
+            const mojId = data.id_ovog_igraca;
             ["dolje", "lijevo", "gore", "desno"].forEach(p => document.getElementById(`karta-${p}`).innerHTML = "");
 
             // Postavljanje karata na stol
             data.stol.forEach((karta, i) => {
-                if (!data.red_igranja[i]) return;
-                const igracId = parseInt(data.red_igranja[i]);
+                const igracId = data.red_igranja[i];
                 const rel = (igracId - mojId + 4) % 4;
                 const pos = ["dolje", "lijevo", "gore", "desno"][rel];
                 document.getElementById(`karta-${pos}`).innerHTML = `<img src="/static/${karta}.png" class="karta-stol">`;
@@ -58,11 +56,8 @@ function ucitajStanje() {
             ).join("");
 
             // Zvanje
-
-            const naRedu = parseInt(data.na_redu);
-
             const zvanjeDiv = document.getElementById("zvanje-aduta");
-            zvanjeDiv.style.display = (data.faza_igre === "zvanje" && naRedu === mojId) ? "block" : "none";
+            zvanjeDiv.style.display = (data.faza_igre === "zvanje" && data.na_redu === mojId) ? "block" : "none";
             document.getElementById("gumb-dalje").style.display = (mojId === data.djelitelj) ? "none" : "inline-block";
         });
 }

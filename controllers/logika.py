@@ -556,7 +556,7 @@ def stanje_igre(id_igre):
 def prikaz_stola(id_igre):
     id_igraca_session = session.get("id_igraca")
     if not id_igraca_session:
-        return redirect(url_for('auth.login')) 
-    
+        return redirect(url_for('auth.login'))
     trenutni_igrac = Igrac.query.get(id_igraca_session)
+    # Šaljemo id_igre i objekt igrac (za ime na dnu stola)
     return render_template('stol.html', id_igre=id_igre, igrac=trenutni_igrac)

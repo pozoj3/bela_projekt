@@ -501,14 +501,15 @@ button:hover {
 .status-bar {
     margin-top: 80px;
     background-color: #1a2e1d;
-    padding: 5px 20px; /* Smanjen padding */
-    height: 60px; /* Fiksna visina */
+    font-size: 0.95em;
+    padding: 10px 40px;
     display: flex;
-    justify-content: space-around; /* Bolji raspored */
+    justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid #78AE45;
     color: #F9ECD2;
-    font-size: 0.95em;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     z-index: 50;
 }
 
@@ -544,6 +545,54 @@ button:hover {
 
 .igra-kontejner {
     flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding-bottom: 150px;
+}
+
+.stol-povrsina {
+    background-color: #355E3B;
+    width: 750px;
+    height: 480px;
+    border: 20px solid #1E3622;
+    border-radius: 250px;
+    position: relative;
+    box-shadow:
+        inset 0 0 60px rgba(0,0,0,0.7),
+        0 20px 40px rgba(0,0,0,0.6);
+}
+
+.igrac-pozicija {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.igrac-krug {
+    width: 70px;
+    height: 70px;
+    background-color: #1a2e1d;
+    border: 3px solid #E8C14B;
+    border-radius: 50%;
+    color: #F9ECD2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.85em;
+    text-align: center;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+    z-index: 10;
+}
+
+.pozicija-karte {
+    width: 90px;
+    height: 130px;
+    border: 2px dashed rgba(120, 174, 69, 0.4);
+    border-radius: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -622,6 +671,40 @@ button:hover {
     width: 80px;
     height: auto;
     border-radius: 5px;
+}
+
+.gore {
+    flex-direction: column;
+    top: -45px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.lijevo {
+    flex-direction: row;
+    top: 50%;
+    left: -45px;
+    transform: translateY(-50%);
+}
+
+.desno {
+    flex-direction: row;
+    top: 50%;
+    right: -45px;
+    transform: translateY(-50%);
+}
+
+.dolje {
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.karta-na-stolu {
+    width: 90px;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 2px 5px 10px rgba(0,0,0,0.5);
 }
 
 .moje-karte-sekcija {
