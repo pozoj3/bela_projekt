@@ -5,7 +5,7 @@ window.onload = function () {
 };
 
 //dohvaćanje stanja igre svakih 5 sekundi
-setInterval(ucitajStanje, 500);
+let intervalId = setInterval(ucitajStanje, 500);
 
 function ucitajStanje() {
 
@@ -47,14 +47,6 @@ function ucitajStanje() {
 
             let ukupnoMi = data.rezultat_ukupno.mi;
             let ukupnoVi = data.rezultat_ukupno.vi;
-
-            //Ako je igrač u timu "VI", zamijenimo perspektivu(tim "MI" su igrač 1 i 3 a tim "VI" su igrač 2 i 4)
-            if (data.kljuc_tima === "VI") {
-
-                [rundaMi, rundaVi] = [rundaVi, rundaMi];
-                [zvanjaMi, zvanjaVi] = [zvanjaVi, zvanjaMi];
-                [ukupnoMi, ukupnoVi] = [ukupnoVi, ukupnoMi];
-            }
 
             // REZULTAT RUNDE
             document.getElementById("mi-runda").innerText = rundaMi;
@@ -205,7 +197,7 @@ function odigrajKartu(oznaka) {
             setTimeout(() => {
                 ucitajStanje();
                 // ponovno pokreni refresh
-                intervalId = setInterval(ucitajStanje, 1000);
+                intervalId = setInterval(ucitajStanje, 500);
             }, 2000);
         }
         else {
