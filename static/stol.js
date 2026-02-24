@@ -69,6 +69,7 @@ function ucitajStanje() {
                 const id = parseInt(idStr);
                 // Provjera tima: ako je kljuc_tima 24, timovi su (0,2) i (1,3) obrnuto
                 // Pretpostavljamo da backend šalje 'moj_tim_id' ili koristiš logiku (id % 2)
+
                 if (id % 2 === mojId % 2) {
                     timMi.push(data.imena_igraca[idStr]);
                 } else {
