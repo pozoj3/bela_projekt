@@ -10,7 +10,19 @@ function ucitajStanje() {
     fetch(`/stanje_igre/${idIgre}`)
         .then(res => res.json())
         .then(data => {
-            if (data.status !== "ok") return;
+            if (data.status !== "ok" || freezeAktivan) return;
+            const mojId = data.id_ovog_igraca;
+
+
+            ["dolje", "desno", "gore", "lijevo"].forEach(p => document.getElementById(`karta-${p}`).innerHTML = "");
+
+            // Postavljanje karata na stol
+            data.stol.forEach((karta, i) => {
+                const igracId = data.red_igranja[i];
+                const rel = (igracId - mojId + 4) % 4;
+                const pos = ["dolje", "desno", "gore", "lijevo"][rel];
+                document.getElementById(`karta-${pos}`).innerHTML = `<img src="/static/${karta}.png" class="karta-stol">`;
+            });
 
             const adutMap = {"H": "Herc", "K": "Karo", "P": "Pik", "T": "Tref"};
             document.getElementById("adut").innerText = adutMap[data.adut] + " (" + data.imena_igraca[data.igrac_koji_zove] + ")" || "-";
@@ -31,30 +43,6 @@ function ucitajStanje() {
             document.getElementById("zvanja-mi").innerText = data.zvanja.mi || 0;
             document.getElementById("zvanja-vi").innerText = data.zvanja.vi || 0;
 
-            const mojId = data.id_ovog_igraca;
-
-            //FREEZE kad su 4 karte na stolu
-            if (data.stol.length === 4 && !freezeAktivan) {
-                freezeAktivan = true;
-                clearInterval(intervalId);
-
-                setTimeout(() => {
-                    freezeAktivan = false;
-                    ucitajStanje();
-                    intervalId = setInterval(ucitajStanje, 1500);
-                }, 2000);
-            }
-
-            ["dolje", "desno", "gore", "lijevo"].forEach(p => document.getElementById(`karta-${p}`).innerHTML = "");
-
-            // Postavljanje karata na stol
-            data.stol.forEach((karta, i) => {
-                const igracId = data.red_igranja[i];
-                const rel = (igracId - mojId + 4) % 4;
-                const pos = ["dolje", "desno", "gore", "lijevo"][rel];
-                document.getElementById(`karta-${pos}`).innerHTML = `<img src="/static/${karta}.png" class="karta-stol">`;
-            });
-
             // Imena igrača
             Object.keys(data.imena_igraca).forEach(idStr => {
                 const logId = parseInt(idStr);
@@ -73,6 +61,18 @@ function ucitajStanje() {
             const zvanjeDiv = document.getElementById("zvanje-aduta");
             zvanjeDiv.style.display = (data.faza_igre === "zvanje" && data.na_redu === mojId) ? "block" : "none";
             document.getElementById("gumb-dalje").style.display = (mojId === data.djelitelj) ? "none" : "inline-block";
+
+            //FREEZE kad su 4 karte na stolu
+            if (data.stol.length === 4) {
+                freezeAktivan = true;
+                clearInterval(intervalId); // Zaustavi automatsko pinganje servera
+
+                setTimeout(() => {
+                    freezeAktivan = false;
+                    ucitajStanje(); // Povuci novo stanje nakon 2 sekunde (kad server već očisti stol)
+                    intervalId = setInterval(ucitajStanje, 1500); // Ponovno pokreni pinganje
+                }, 2000);
+            }
         });
 }
 
