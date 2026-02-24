@@ -62,6 +62,71 @@ function ucitajStanje() {
             zvanjeDiv.style.display = (data.faza_igre === "zvanje" && data.na_redu === mojId) ? "block" : "none";
             document.getElementById("gumb-dalje").style.display = (mojId === data.djelitelj) ? "none" : "inline-block";
 
+            const timMi = [];
+            const timVi = [];
+
+            Object.keys(data.imena_igraca).forEach(idStr => {
+                const id = parseInt(idStr);
+                // Provjera tima: ako je kljuc_tima 24, timovi su (0,2) i (1,3) obrnuto
+                // Pretpostavljamo da backend šalje 'moj_tim_id' ili koristiš logiku (id % 2)
+                if (id % 2 === mojId % 2) {
+                    timMi.push(data.imena_igraca[idStr]);
+                } else {
+                    timVi.push(data.imena_igraca[idStr]);
+                }
+            });
+
+            // Ažuriraj imena igrača u tablici
+            const tablicaTd = document.querySelectorAll(".tablica-timovi td");
+            if (tablicaTd.length >= 2) {
+                tablicaTd[0].innerHTML = timMi.join("<br>");
+                tablicaTd[1].innerHTML = timVi.join("<br>");
+            }
+
+            // if (data.pobjede_ukupno) {
+            //     const pobjedeTd = document.querySelectorAll(".pobjede-red td");
+            //     pobjedeTd[0].innerText = `Pobjede: ${data.pobjede_ukupno.mi}`;
+            //     pobjedeTd[1].innerText = `Pobjede: ${data.pobjede_ukupno.vi}`;
+            // }
+
+
+            const zvanjaKontejner = document.querySelector(".zvanja-obavijest");
+            const naslov = zvanjaKontejner.querySelector("h3");
+            const hr = zvanjaKontejner.querySelector("hr");
+            zvanjaKontejner.innerHTML = "";
+            zvanjaKontejner.appendChild(naslov);
+            zvanjaKontejner.appendChild(hr);
+
+            let imaZvanja = false;
+            if (data.popisi_zvanja) {
+                Object.keys(data.popisi_zvanja).forEach(idIgraca => {
+                    const listaZvanjaIgraca = data.popisi_zvanja[idIgraca];
+
+                    // Ako igrač ima barem jedno zvanje
+                    if (listaZvanjaIgraca.length > 0) {
+                        imaZvanja = true;
+                        const ime = data.imena_igraca[idIgraca] || "Igrač " + idIgraca;
+
+                        listaZvanjaIgraca.forEach(z => {
+                            const div = document.createElement("div");
+                            div.className = "zvanje-stavka";
+                            // Format: Ime: (karte) - bodovi
+                            div.innerHTML = `<strong>${ime}:</strong> (${z.karte}) - ${z.bodovi}`;
+                            zvanjaKontejner.appendChild(div);
+                        });
+                    }
+                });
+            }
+
+            if (!imaZvanja) {
+                const prazno = document.createElement("div");
+                prazno.style.fontSize = "0.85em";
+                prazno.style.textAlign = "center";
+                prazno.style.marginTop = "10px";
+                prazno.innerText = "Trenutno nema zvanja";
+                zvanjaKontejner.appendChild(prazno);
+            }
+
         });
 }
 

@@ -21,28 +21,54 @@
 
     <section class="status-bar">
         <div class="status-info">
+            &nbsp;
             <div class="info-item">ADUT: <span id="adut" class="zlatni-tekst">-</span></div>
             <div class="info-item">NA REDU: <span id="na-redu" class="zlatni-tekst">-</span></div>
         </div>
 
         <div class="status-rezultat">
+            MI
             <div class="tim-rezultat">
-                MI <span id="mi-ukupno" class="veliki-bodovi">0</span>
+                 <span id="mi-ukupno" class="veliki-bodovi">0</span>
                 <span class="runda-bodovi">(+<span id="mi-runda">0</span>)</span>
             </div>
             <div class="rezultat-razdjelnik">:</div>
             <div class="tim-rezultat">
-                <span id="vi-ukupno" class="veliki-bodovi">0</span> VI
                 <span class="runda-bodovi">(+<span id="vi-runda">0</span>)</span>
+                <span id="vi-ukupno" class="veliki-bodovi">0</span>
+<!--                <span class="runda-bodovi">(+<span id="vi-runda">0</span>)</span>-->
             </div>
+            VI
         </div>
 
         <div class="status-zvanja">
-            ZVANJA: MI <span id="zvanja-mi" class="zlatni-tekst">0</span> - VI <span id="zvanja-vi" class="zlatni-tekst">0</span>
+                ZVANJA&nbsp;&nbsp;&nbsp;[
+                MI
+                <span id="zvanja-mi" class="zlatni-tekst">0</span>
+                :
+                <span id="zvanja-vi" class="zlatni-tekst">0</span>
+                VI]&nbsp;&nbsp;
         </div>
     </section>
 
     <main class="igra-kontejner">
+
+        <div class="side-panel lijevo-panel">
+            <table class="tablica-timovi">
+                <tr>
+                    <th>MI</th>
+                    <th>VI</th>
+                </tr>
+                <tr>
+                    <td>Igrač 1<br>Igrač 3</td>
+                    <td>Igrač 2<br>Igrač 4</td>
+                </tr>
+                <tr class="pobjede-red">
+                    <td>Pobjede: 0</td>
+                    <td>Pobjede: 0</td>
+                </tr>
+            </table>
+        </div>
 
         <div class="stol-povrsina">
 
@@ -76,6 +102,19 @@
                 <button id="gumb-dalje" class="glavni-gumb" style="width: 150px; margin: 0 auto; display: block;" onclick="zoviAduta('dalje')">DALJE</button>
             </div>
 
+        </div>
+
+        <div class="side-panel desno-panel">
+            <div class="zvanja-obavijest">
+                <h3>ZVANJA</h3>
+                <hr>
+                <div class="zvanje-stavka">
+                    <strong>qwer:</strong> temp
+                </div>
+                <div class="zvanje-stavka">
+                    <strong>gbartol:</strong> temp
+                </div>
+            </div>
         </div>
 
         <section class="moje-karte-sekcija">

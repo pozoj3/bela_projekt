@@ -499,11 +499,13 @@ button:hover {
 }
 
 .status-bar {
-    margin-top: 100px;
+    width: 100%;
+    margin-top: 0px;
+    margin-bottom: 20px;
     flex-shrink: 0;
     background-color: #1a2e1d;
     font-size: 0.95em;
-    padding: 10px 40px;
+    padding: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -518,6 +520,10 @@ button:hover {
     display: flex;
     align-items: center;
     gap: 20px;
+}
+
+.status-rezultat{
+    margin-right: 65px;
 }
 
 .info-item {
@@ -545,12 +551,49 @@ button:hover {
 }
 
 .igra-kontejner {
-    flex-grow: 1;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
-    position: relative;
-    padding-bottom: 150px;
+    width: 95%;
+    margin: 0px auto;
+    margin-top: 20px;
+    padding-bottom: 120px;
+}
+
+.side-panel {
+    width: 220px;
+    min-height: 300px;
+    background-color: rgba(30, 54, 34, 0.8);
+    border: 2px solid #78AE45;
+    border-radius: 15px;
+    padding: 15px;
+    color: #F9ECD2;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.tablica-timovi {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.tablica-timovi th {
+    color: #E8C14B;
+    font-size: 1.2em;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #78AE45;
+}
+
+.tablica-timovi td {
+    padding: 15px 5px;
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+
+.pobjede-red td {
+    color: #FFD700;
+    font-weight: bold;
+    border-top: 1px dashed rgba(120, 174, 69, 0.5);
 }
 
 .stol-povrsina {
@@ -640,6 +683,26 @@ button:hover {
     width: 80px;
     height: 111px;
     border-radius: 5px;
+}
+
+.zvanja-obavijest h3 {
+    text-align: center;
+    margin-top: 0;
+    color: #E8C14B;
+    font-size: 1.1em;
+}
+
+.zvanje-stavka {
+    background-color: rgba(0, 0, 0, 0.2);
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    border-left: 3px solid #E8C14B;
+}
+
+.zvanje-stavka strong {
+    color: #78AE45;
 }
 
 .moje-karte-sekcija {
