@@ -45,13 +45,13 @@ function ucitajStanje() {
                 }, 2000);
             }
 
-            ["dolje", "lijevo", "gore", "desno"].forEach(p => document.getElementById(`karta-${p}`).innerHTML = "");
+            ["dolje", "desno", "gore", "lijevo"].forEach(p => document.getElementById(`karta-${p}`).innerHTML = "");
 
             // Postavljanje karata na stol
             data.stol.forEach((karta, i) => {
                 const igracId = data.red_igranja[i];
                 const rel = (igracId - mojId + 4) % 4;
-                const pos = ["dolje", "lijevo", "gore", "desno"][rel];
+                const pos = ["dolje", "desno", "gore", "lijevo"][rel];
                 document.getElementById(`karta-${pos}`).innerHTML = `<img src="/static/${karta}.png" class="karta-stol">`;
             });
 
@@ -59,7 +59,7 @@ function ucitajStanje() {
             Object.keys(data.imena_igraca).forEach(idStr => {
                 const logId = parseInt(idStr);
                 const rel = (logId - mojId + 4) % 4;
-                const pos = ["dolje", "lijevo", "gore", "desno"][rel];
+                const pos = ["dolje", "desno", "gore", "lijevo"][rel];
                 const el = document.getElementById(`ime-${pos}`);
                 if(el) el.innerText = data.imena_igraca[idStr];
             });
