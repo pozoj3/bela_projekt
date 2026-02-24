@@ -13,7 +13,7 @@ function ucitajStanje() {
             if (data.status !== "ok") return;
 
             const adutMap = {"H": "Herc", "K": "Karo", "P": "Pik", "T": "Tref"};
-            document.getElementById("adut").innerText = adutMap[data.adut] || "-";
+            document.getElementById("adut").innerText = adutMap[data.adut] + " (" + data.imena_igraca[data.igrac_koji_zove] + ")" || "-";
             document.getElementById("na-redu").innerText = data.imena_igraca[data.na_redu] || "-";
 
             let rMi = data.rezultat_runde.mi, rVi = data.rezultat_runde.vi;
