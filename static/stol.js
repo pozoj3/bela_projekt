@@ -1,4 +1,5 @@
 let intervalId;
+let freezeAktivan = false;
 
 window.onload = function () {
     ucitajStanje();
@@ -31,6 +32,19 @@ function ucitajStanje() {
             document.getElementById("zvanja-vi").innerText = data.zvanja.vi || 0;
 
             const mojId = data.id_ovog_igraca;
+
+            //FREEZE kad su 4 karte na stolu
+            if (data.stol.length === 4 && !freezeAktivan) {
+                freezeAktivan = true;
+                clearInterval(intervalId);
+
+                setTimeout(() => {
+                    freezeAktivan = false;
+                    ucitajStanje();
+                    intervalId = setInterval(ucitajStanje, 1500);
+                }, 2000);
+            }
+
             ["dolje", "lijevo", "gore", "desno"].forEach(p => document.getElementById(`karta-${p}`).innerHTML = "");
 
             // Postavljanje karata na stol
