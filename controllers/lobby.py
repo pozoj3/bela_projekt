@@ -143,3 +143,25 @@ def stanje_sobe(id_sobe):
         "igra_pokrenuta": True if igra else False,
         "id_igre": igra.id_igre if igra else None
     }
+
+# POVRATAK IZ ČEKAONICE U LOBBY
+@lobby_bp.route("/napusti_sobu/<int:id_sobe>")
+def napusti_sobu(id_sobe):
+    id_igraca = session.get("id_igraca")
+    if not id_igraca:
+        return redirect(url_for("auth.index"))
+
+    soba = Soba.query.get_or_404(id_sobe)
+
+    if soba.igrac1_id == id_igraca:
+        soba.igrac1_id = None
+    elif soba.igrac2_id == id_igraca:
+        soba.igrac2_id = None
+    elif soba.igrac3_id == id_igraca:
+        soba.igrac3_id = None
+    elif soba.igrac4_id == id_igraca:
+        soba.igrac4_id = None
+
+    db.session.commit()
+
+    return redirect(url_for("lobby.prikaz_lobbyja"))

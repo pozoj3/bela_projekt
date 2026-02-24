@@ -41,6 +41,12 @@
                 <form id="forma-start" action="{{ url_for('logika.pokreni_igru', id_sobe=soba.id_sobe) }}" method="POST">
                     <button type="submit" id="gumb-start" class="glavni-gumb" disabled>ZAPOČNI IGRU</button>
                 </form>
+                <form action="{{ url_for('lobby.napusti_sobu', id_sobe=soba.id_sobe) }}" method="GET">
+                    <button type="submit" class="glavni-gumb" style="margin-top:10px; background-color:#777;">
+                        POVRATAK U LOBBY
+                    </button>
+                </form>
+                
                 <p id="poruka-status">Čekamo 4 igrača...</p>
             </div>
         </div>
