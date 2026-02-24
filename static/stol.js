@@ -62,17 +62,6 @@ function ucitajStanje() {
             zvanjeDiv.style.display = (data.faza_igre === "zvanje" && data.na_redu === mojId) ? "block" : "none";
             document.getElementById("gumb-dalje").style.display = (mojId === data.djelitelj) ? "none" : "inline-block";
 
-            //FREEZE kad su 4 karte na stolu
-            if (data.stol.length === 4) {
-                freezeAktivan = true;
-                clearInterval(intervalId); // Zaustavi automatsko pinganje servera
-
-                setTimeout(() => {
-                    freezeAktivan = false;
-                    ucitajStanje(); // Povuci novo stanje nakon 2 sekunde (kad server već očisti stol)
-                    intervalId = setInterval(ucitajStanje, 1500); // Ponovno pokreni pinganje
-                }, 2000);
-            }
         });
 }
 
@@ -81,11 +70,32 @@ function odigrajKartu(oznaka) {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({id_igre: idIgre, kliknuta_karta: oznaka})
-    }).then(res => res.json()).then(data => {
-        if (data.status !== "ok") alert(data.poruka);
-        ucitajStanje();
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.status !== "ok") {
+            alert(data.poruka);
+            return;
+        }
+
+        if (data.stanje === "stih_gotov") {
+
+            freezeAktivan = true;
+            clearInterval(intervalId);
+
+            setTimeout(() => {
+                freezeAktivan = false;
+                ucitajStanje();
+                intervalId = setInterval(ucitajStanje, 1500);
+            }, 2000);
+
+        } else {
+            ucitajStanje();
+        }
     });
 }
+
 
 function zoviAduta(odluka) {
     fetch("/zovi_aduta", {
