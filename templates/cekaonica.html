@@ -18,6 +18,19 @@
     </header>
 
     <main class="cekaonica-kontejner">
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="obavijesti-lobby">
+            {% for category, message in messages %}
+                <div class="tekst-greske">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+
         <div class="cekaonica-box">
             <div class="soba-info">
                 <h1>SOBA <span class="broj-sobe">{{ soba.id_sobe }}</span></h1>
@@ -46,7 +59,7 @@
                         POVRATAK U LOBBY
                     </button>
                 </form>
-                
+
                 <p id="poruka-status">Čekamo 4 igrača...</p>
             </div>
         </div>
