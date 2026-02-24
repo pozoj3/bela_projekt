@@ -153,9 +153,15 @@ def napusti_sobu(id_sobe):
 
     soba = Soba.query.get_or_404(id_sobe)
 
+    #Ako je host napustio sobu brišemo cijelu sobu
     if soba.igrac1_id == id_igraca:
-        soba.igrac1_id = None
-    elif soba.igrac2_id == id_igraca:
+        db.session.delete(soba)
+        db.session.commit()
+        flash("Soba je zatvorena jer je kreator napustio.", "lobby_info")
+        return redirect(url_for("lobby.prikaz_lobbyja"))
+
+    # Ako nije host, samo ga uklanjamo iz sobe
+    if soba.igrac2_id == id_igraca:
         soba.igrac2_id = None
     elif soba.igrac3_id == id_igraca:
         soba.igrac3_id = None
