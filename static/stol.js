@@ -3,7 +3,7 @@ let freezeAktivan = false;
 
 window.onload = function () {
     ucitajStanje();
-    intervalId = setInterval(ucitajStanje, 1500); // Malo sporije da ne guši server
+    intervalId = setInterval(ucitajStanje, 1500);
 };
 
 function ucitajStanje() {
@@ -62,8 +62,6 @@ function ucitajStanje() {
 
             Object.keys(data.imena_igraca).forEach(idStr => {
                 const id = parseInt(idStr);
-                // Provjera tima: ako je kljuc_tima 24, timovi su (0,2) i (1,3) obrnuto
-                // Pretpostavljamo da backend šalje 'moj_tim_id' ili koristiš logiku (id % 2)
 
                 if (id === 1 || id === 3) {
                     timMi.push(data.imena_igraca[idStr]);
@@ -78,11 +76,11 @@ function ucitajStanje() {
                 tablicaTd[1].innerHTML = timVi.join("<br>");
             }
 
-            // if (data.pobjede_ukupno) {
-            //     const pobjedeTd = document.querySelectorAll(".pobjede-red td");
-            //     pobjedeTd[0].innerText = `Pobjede: ${data.pobjede_ukupno.mi}`;
-            //     pobjedeTd[1].innerText = `Pobjede: ${data.pobjede_ukupno.vi}`;
-            // }
+            if (data.pobjede_ukupno) {
+                const pobjedeTd = document.querySelectorAll(".pobjede-red td");
+                pobjedeTd[0].innerText = `Pobjede: ${data.pobjede_ukupno.mi}`;
+                pobjedeTd[1].innerText = `Pobjede: ${data.pobjede_ukupno.vi}`;
+            }
 
 
             const zvanjaKontejner = document.querySelector(".zvanja-obavijest");
