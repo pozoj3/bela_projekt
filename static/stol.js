@@ -12,6 +12,7 @@ function ucitajStanje() {
         .then(data => {
             if (data.status !== "ok") return;
             if (data.faza_igre === "kraj") {
+                clearInterval(intervalId)
                 alert("Kraj igre! Netko je prešao 1001 bod. Vraćamo vas u sobu...");
                 window.location.href = "/soba/" + data.id_sobe;
                 return; 
@@ -203,6 +204,7 @@ function odigrajKartu(oznaka) {
         } 
 
         else if (data.stanje === "kraj_igre") {
+            clearInterval(intervalId)
             alert("Kraj igre! Bodovi su prešli 1001. Vraćamo vas u sobu...");
             window.location.href = "/soba/" + data.id_sobe;
         } 

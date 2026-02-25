@@ -97,14 +97,20 @@ def ulazak_u_sobu(id_sobe):
     soba = Soba.query.get_or_404(id_sobe)
 
     # PROVJERI POSTOJI LI IGRA
-    igra = Igra.query.filter_by(id_sobe=soba.id_sobe).first()
+    igra = Igra.query.filter_by(id_sobe=soba.id_sobe).order_by(Igra.id_igre.desc()).first()
 
-    if igra:
-        # AKO IGRA POSTOJI S TIM BROJEM IDEMO NA STOL
+    # PROVJERAVAMO POSTOJI LI IGRA, AKO POSTOJI, RECIMO ODIGRANA JE VEĆ NEKA IGRA, ONDA PROVJERI I JE LI TA IGRA GOTOVA
+    if igra and igra.br_bodova_mi < 1001 and igra.br_bodova_vi < 1001:
+        # AKO ISPUNIMO SVE UVJETE IDI ZA TAJ STOL
         return redirect(url_for('logika.prikaz_stola', id_igre=igra.id_igre))
 
-    # AKO IGRE NEMA IDI NA ČEKAONICU
-    return render_template('cekaonica.html', soba=soba)
+    # INAČE POŠALJI IGRAČE U ČEKAONICU
+    return redirect(url_for('lobby.cekaonica', id_sobe = soba.id_sobe))
+
+@lobby_bp.route('/cekaonica/<int:id_sobe>')
+def cekaonica(id_sobe):
+    soba = Soba.query.get_or_404(id_sobe)
+    return render_template('cekaonica.html', soba = soba)
 
 # RUTA ZA DOHVAĆANJE STANJA SOBE (ZA ČEKAONICU)
 @lobby_bp.route('/stanje_sobe/<int:id_sobe>')
@@ -114,6 +120,11 @@ def stanje_sobe(id_sobe):
 
     # PROVJERA POSTOJI LI IGRA VEĆ ZA TU SOBU
     igra = Igra.query.filter_by(id_sobe=id_sobe).first()
+
+    # AKO JE IGRA GOTOVA MORAMO NEKAKO SIGNALIZIRATI CEKAONICI DA TREBAMO NOVU IGRU DA NAS NE VRATI NA STARU
+    aktivna_igra = False
+    if igra and igra.br_bodova_mi < 1001 and igra.br_bodova_vi < 1001:
+        aktivna_igra = True
 
     # DOHVATI OBJEKTE IGRAČA DA BISMO IMALI PRISTUP USERNAME-U
     lista_idova = [soba.igrac1_id, soba.igrac2_id, soba.igrac3_id, soba.igrac4_id]
@@ -137,9 +148,9 @@ def stanje_sobe(id_sobe):
     # VRATI PODATKE
     return {
         "status": "ok",
-        "igraci": imena_igraca,  # Sada šaljemo ['Username1', 'Username2', None, None]
+        "igraci": imena_igraca,
         "broj_igraca": broj_igraca,
-        "igra_pokrenuta": True if igra else False,
+        "igra_pokrenuta": aktivna_igra,
         "id_igre": igra.id_igre if igra else None
     }
 
