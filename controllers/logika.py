@@ -348,7 +348,6 @@ def odigraj_potez():
     id_igre = data.get("id_igre")
     kliknuta_karta = data.get("kliknuta_karta")
     id_igraca_session = session.get("id_igraca")
-    #odgovor_bela = data.get("odgovor_bela")
 
     if not id_igre:
         return jsonify({"status" : "greska", "poruka" : "Igra nije pronađena."})
@@ -429,18 +428,20 @@ def odigraj_potez():
                 pobjednik = "mi" if igra_db.br_bodova_mi >= igra_db.br_bodova_vi else "vi"
                 updateaj_statistiku(igra_db= igra_db, pobjednicki_tim= pobjednik)
 
-            else:
-                novi_djelitelj = 1 if runda_db.djelitelj == 4 else runda_db.djelitelj + 1
-                prvi_igra = 1 if novi_djelitelj == 4 else novi_djelitelj + 1
+                igra_db.br_bodova_mi = 0
+                igra_db.br_bodova_vi = 0
 
-                nova_logika = Runda()
-                nova_logika.promjesaj_karte(prvi_na_redu= prvi_igra)
-                for i in range(1, 5):
-                    nova_logika.sortiraj_ruku(i)
+            novi_djelitelj = 1 if runda_db.djelitelj == 4 else runda_db.djelitelj + 1
+            prvi_igra = 1 if novi_djelitelj == 4 else novi_djelitelj + 1
 
-                red_igranja_str = ",".join(str(x) for x in nova_logika.red_igranja)
+            nova_logika = Runda()
+            nova_logika.promjesaj_karte(prvi_na_redu= prvi_igra)
+            for i in range(1, 5):
+                nova_logika.sortiraj_ruku(i)
 
-                nova_runda_db = RundaModel(
+            red_igranja_str = ",".join(str(x) for x in nova_logika.red_igranja)
+
+            nova_runda_db = RundaModel(
                     id_igre = igra_db.id_igre,
                     redni_broj = runda_db.redni_broj + 1,
                     faza_igre = "zvanje",
@@ -458,20 +459,20 @@ def odigraj_potez():
                     osvojeni_stihovi_mi = 0, 
                     osvojeni_stihovi_vi = 0
                 )
-                db.session.add(nova_runda_db)
-                db.session.flush()
+            db.session.add(nova_runda_db)
+            db.session.flush()
 
-                mapaLS, _ = dohvati_mapu_igraca(igra_db.id_igre)
+            mapaLS, _ = dohvati_mapu_igraca(igra_db.id_igre)
 
-                for logicki_id, karte_lista in nova_logika.ruke.items():
-                    for karta in karte_lista:
-                        db.session.add(RundaKarte(id_runde = nova_runda_db.id_runde,
-                                id_igraca = mapaLS[logicki_id], oznaka_karte = karta.oznaka, tip = "ruka"))
+            for logicki_id, karte_lista in nova_logika.ruke.items():
+                for karta in karte_lista:
+                    db.session.add(RundaKarte(id_runde = nova_runda_db.id_runde,
+                            id_igraca = mapaLS[logicki_id], oznaka_karte = karta.oznaka, tip = "ruka"))
                         
-                for logicki_id, karte_lista in nova_logika.taloni.items():
-                    for karta in karte_lista:
-                        db.session.add(RundaKarte(id_runde = nova_runda_db.id_runde,
-                                id_igraca = mapaLS[logicki_id], oznaka_karte = karta.oznaka, tip = "talon"))
+            for logicki_id, karte_lista in nova_logika.taloni.items():
+                for karta in karte_lista:
+                    db.session.add(RundaKarte(id_runde = nova_runda_db.id_runde,
+                            id_igraca = mapaLS[logicki_id], oznaka_karte = karta.oznaka, tip = "talon"))
         
     else:
         broj_karti_stol = len(logika_runde.karte_na_stolu)

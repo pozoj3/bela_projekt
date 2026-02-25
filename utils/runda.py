@@ -405,10 +405,15 @@ class Runda:
 
         potrebno = ukupna_igra / 2  + 1
 
+        self.bodovi_mi += (self.bodovi_zvanja[1] + self.bodovi_zvanja[3])
+        self.bodovi_vi += (self.bodovi_zvanja[2] + self.bodovi_zvanja[4])
+
         if(self.osvojeni_stihovi_vi == 0):
             self.bodovi_mi = ukupna_igra + 100
+            self.bodovi_vi = 0
         elif(self.osvojeni_stihovi_mi == 0):
             self.bodovi_vi = ukupna_igra + 100
+            self.bodovi_mi = 0
         else:
             if(self.igrac_koji_zove % 2 == 1):
                 if(self.bodovi_mi < potrebno):
