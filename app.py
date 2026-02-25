@@ -1,13 +1,17 @@
 from flask import Flask, render_template
+from flask_socketio import SocketIO
 from config import Config
 from database import db
+
+app = Flask(__name__)
+app.config.from_object(Config)
+
+# INICIJALIZACIJA ZA SOCKET-e
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 from controllers.auth import auth_bp
 from controllers.lobby import lobby_bp
 from controllers.logika import logika_bp
-
-app = Flask(__name__)
-app.config.from_object(Config)
 
 # Inicijalizacija baze
 db.init_app(app)
@@ -18,7 +22,7 @@ app.register_blueprint(lobby_bp)
 app.register_blueprint(logika_bp)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
 
 @app.route('/')
 def index():

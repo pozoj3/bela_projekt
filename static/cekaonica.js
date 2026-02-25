@@ -1,11 +1,14 @@
 // UČITAJ STANJE ČIM SE STRANICA OTVORI
 window.onload = function () {
     provjeriSobu();
+    socket.emit('join_room', {id_sobe: idSobe});
+    socket.on('osvjezi_cekaonicu', function() {
+        provjeriSobu();
+    });
+    socket.on('igra_krenula', function(data){
+        window.location.href = `/prikaz_stola/${data.id_igre}`;
+    });
 };
-
-// SVAKIH 3 SEKUNDE PROVJERI STANJE SOBE
-setInterval(provjeriSobu, 3000);
-
 
 function provjeriSobu() {
     fetch(`/stanje_sobe/${idSobe}`)

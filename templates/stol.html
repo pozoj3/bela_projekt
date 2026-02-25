@@ -5,6 +5,11 @@
     <title>BELA - Stol</title>
     <link rel="stylesheet" href="/static/style.css">
     <script>const idIgre = {{ id_igre }};</script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+        <script>
+            // INICIJALIZACIJA SOCKETA U JAVASCRIPTU
+            const socket = io();
+        </script>
     <script src="/static/stol.js" defer></script>
 </head>
 <body class="stol-body">

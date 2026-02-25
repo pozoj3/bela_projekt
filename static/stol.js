@@ -3,7 +3,11 @@ let freezeAktivan = false;
 
 window.onload = function () {
     ucitajStanje();
-    intervalId = setInterval(ucitajStanje, 1500);
+    socket.emit('join', { id_igre: idIgre });
+    socket.on('osvjezi_stol', function(data) {
+        if (freezeAktivan) return;
+        ucitajStanje();
+    });
 };
 
 function ucitajStanje() {
@@ -12,7 +16,6 @@ function ucitajStanje() {
         .then(data => {
             if (data.status !== "ok") return;
             if (data.faza_igre === "kraj") {
-                clearInterval(intervalId)
                 alert("Kraj igre! Netko je prešao 1001 bod. Vraćamo vas u sobu...");
                 window.location.href = "/soba/" + data.id_sobe;
                 return; 
@@ -192,23 +195,22 @@ function odigrajKartu(oznaka) {
             document.getElementById(`karta-${pos}`).innerHTML =
                 `<img src="/static/${oznaka}.png" class="karta-stol">`;
 
+            // SPRIJEČAVAMO SOCKET DA POBRIŠE ODMAH STOL
             freezeAktivan = true;
-            clearInterval(intervalId);
 
+            // NADAM SE DA ĆE S OVIME SAD RADITI FREEZE, DAKLE STAVIMO TIMER, JEDNOM KAD ISTEKNE ODBLOKIRAJ SOCKET PA NEKA NAPRAVI ŠTO JE HTIO KADA SMO GA POKRENULI
             setTimeout(() => {
                 freezeAktivan = false;
                 ucitajStanje();
-                intervalId = setInterval(ucitajStanje, 1500);
             }, 2000);
-
         } 
 
         else if (data.stanje === "kraj_igre") {
-            clearInterval(intervalId)
             alert("Kraj igre! Bodovi su prešli 1001. Vraćamo vas u sobu...");
             window.location.href = "/soba/" + data.id_sobe;
         } 
 
+        // ONAJ KOJI JE BACIO KARTU ODMAH OSVJEŽI SVOJE STANJE
         else {
             ucitajStanje();
         }

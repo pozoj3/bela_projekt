@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <title>BELA - Čekaonica</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        // 2. INICIJALIZIRAJ SOCKET PRIJE SVEGA OSTALOG
+        const socket = io();
+        const idSobe = {{ soba.id_sobe }};
+    </script>
 </head>
 
 <body>
@@ -65,9 +71,6 @@
         </div>
     </main>
 
-    <script>
-        const idSobe = {{ soba.id_sobe }};
-    </script>
     <script src="/static/cekaonica.js"></script>
 </body>
 </html>

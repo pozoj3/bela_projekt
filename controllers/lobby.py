@@ -1,4 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, session, flash, request
+
+from app import socketio
+from flask_socketio import emit, join_room
 from database import db
 from models import soba
 from models.igra import Igra
@@ -7,6 +10,11 @@ from models.soba import Soba
 
 # KREIRAMO BLUEPRINT ZA SVE ŠTO IMA VEZE S LOBBY-JEM
 lobby_bp = Blueprint('lobby', __name__)
+
+@socketio.on('join_room')
+def handle_join_room(data):
+    room = str(data['id_sobe'])
+    join_room(room)
 
 # RUTA ZA LOBBY
 @lobby_bp.route('/lobby')
@@ -42,6 +50,7 @@ def kreiraj_sobu():
     # DODAVANJE RETKA U TABLICU
     db.session.add(nova_soba)
     db.session.commit()
+    socketio.emit('osvjezi_cekaonicu', room=str(nova_soba.id_sobe))
     
 
     return redirect(url_for('lobby.ulazak_u_sobu', id_sobe=nova_soba.id_sobe))
@@ -83,6 +92,7 @@ def pridruzi_se():
         
     # SPREMI IGRAČA U BAZU (Da soba zapamti da je ušao)
     db.session.commit()
+    socketio.emit('osvjezi_cekaonicu', room=str(id_sobe))
 
     # AKO SU SVA 4 MJESTA POPUNJENA, TAJ 4. IGRAČ OKIDA MIJEŠANJE KARATA
     if soba.igrac1_id and soba.igrac2_id and soba.igrac3_id and soba.igrac4_id:
@@ -179,5 +189,6 @@ def napusti_sobu(id_sobe):
         soba.igrac4_id = None
 
     db.session.commit()
+    socketio.emit('osvjezi_cekaonicu', room=str(id_sobe))
 
     return redirect(url_for("lobby.prikaz_lobbyja"))

@@ -1,5 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, session, flash, request, jsonify
 import random
+
+from flask_socketio import emit, join_room
+from app import socketio
 from database import db
 from utils.karta import Karta
 from utils.runda import Runda
@@ -9,6 +12,12 @@ from models.igrac import Igrac
 
 logika_bp = Blueprint('logika', __name__)
 
+@socketio.on('join')
+def on_join(data):
+    username = session.get('username')
+    # SOBA ZA SOCKETE JE U OVOME SLUČAJU IGRA PA NEKA BUDE PREPOZNATA PO id_igre
+    room = str(data['id_igre'])
+    join_room(room)
 
 #vraca rjecnik {logicki_id : stvarni_db_id} i obrnuti rjecnik
 def dohvati_mapu_igraca(id_igre):
@@ -152,6 +161,7 @@ def pokreni_igru(id_sobe):
     nova_igra = Igra(id_sobe = id_sobe, zadnji_dijelio = 1) 
     db.session.add(nova_igra)
     db.session.flush()
+    socketio.emit('igra_krenula', {'id_igre': nova_igra.id_igre}, room=str(id_sobe))
 
     prvi_na_redu = random.randint(1, 4)
     djelitelj = 4 if prvi_na_redu == 1 else prvi_na_redu - 1
@@ -255,6 +265,7 @@ def zovi_aduta():
         runda_db.na_redu = iduci_na_redu
 
         db.session.commit()
+        socketio.emit('osvjezi_stol', {'poruka': 'Igrač je rekao dalje!'}, room=str(id_igre))
         return jsonify({"status": "ok", "poruka": "Rekli ste dalje.", "na_redu": iduci_na_redu})
     
 
@@ -330,7 +341,7 @@ def zovi_aduta():
         logika_runde.red_igranja = red_liste
 
         db.session.commit()
-
+        socketio.emit('osvjezi_stol', {'poruka': 'Adut je zvan!'}, room = str(id_igre))
         return jsonify({"status" : "ok", "poruka" : f"Adut je {odluka}.",
                         "na_redu": prvi_baca, "zvanja_mi" : runda_db.bodovi_zvanja_mi,
                         "zvanja_vi": runda_db.bodovi_zvanja_vi})
@@ -480,6 +491,7 @@ def odigraj_potez():
 
     db.session.commit()
 
+    socketio.emit('osvjezi_stol', {'poruka': 'Netko je odigrao!'}, room=str(id_igre))
     return jsonify({"status" : "ok", "stanje" : stanje_odgovor, "na_redu" : runda_db.na_redu})
         
 
