@@ -10,7 +10,7 @@ function ucitajStanje() {
     fetch(`/stanje_igre/${idIgre}`)
         .then(res => res.json())
         .then(data => {
-            if (data.status !== "ok" || freezeAktivan) return;
+            if (data.status !== "ok") return;
             const mojId = data.id_ovog_igraca;
 
 
@@ -147,18 +147,23 @@ function odigrajKartu(oznaka) {
 
         if (data.stanje === "stih_gotov") {
 
-            freezeAktivan = true;
-            clearInterval(intervalId);
+        const mojId = data.na_redu; 
+        const rel = 0; 
+        const pos = ["dolje", "desno", "gore", "lijevo"][rel];
 
-            setTimeout(() => {
-                freezeAktivan = false;
-                ucitajStanje();
-                intervalId = setInterval(ucitajStanje, 1500);
-            }, 2000);
+        document.getElementById(`karta-${pos}`).innerHTML =
+            `<img src="/static/${oznaka}.png" class="karta-stol">`;
 
-        } else {
+        freezeAktivan = true;
+        clearInterval(intervalId);
+
+        setTimeout(() => {
+            freezeAktivan = false;
             ucitajStanje();
-        }
+            intervalId = setInterval(ucitajStanje, 1500);
+        }, 2000);
+
+        }   
     });
 }
 
