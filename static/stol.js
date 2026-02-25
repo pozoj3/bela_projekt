@@ -4,6 +4,10 @@ let freezeAktivan = false;
 window.onload = function () {
     ucitajStanje();
     socket.emit('join', { id_igre: idIgre });
+    socket.on('kraj_igre', function(data) {
+        alert("Igra je gotova!");
+        window.location.href = "/ulazak_u_sobu/" + data.id_sobe;
+    });
     socket.on('osvjezi_stol', function(data) {
         if (freezeAktivan) return;
         ucitajStanje();
@@ -202,7 +206,7 @@ function odigrajKartu(oznaka) {
             setTimeout(() => {
                 freezeAktivan = false;
                 // ucitajStanje();
-            }, 2000);
+            }, 3000);
         } 
 
         else if (data.stanje === "kraj_igre") {

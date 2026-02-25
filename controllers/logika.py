@@ -393,6 +393,9 @@ def odigraj_potez():
     
     if karta_db:
         karta_db.tip = "stol"
+
+    db.session.commit()
+    socketio.emit('osvjezi_stol', {'poruka': 'Karta bacena'}, room=str(id_igre))
         
     runda_db.bodovi_zvanja_mi = logika_runde.bodovi_zvanja[1] + logika_runde.bodovi_zvanja[3]
     runda_db.bodovi_zvanja_vi = logika_runde.bodovi_zvanja[2] + logika_runde.bodovi_zvanja[4]
@@ -439,6 +442,7 @@ def odigraj_potez():
                 updateaj_statistiku(igra_db= igra_db, pobjednicki_tim= pobjednik)
 
                 db.session.commit()
+                socketio.emit('kraj_igre', {'id_sobe': igra_db.id_sobe}, room=str(id_igre))
                 return jsonify({"status" : "ok", "stanje" : stanje_odgovor, "id_sobe" : igra_db.id_sobe})
 
             novi_djelitelj = 1 if runda_db.djelitelj == 4 else runda_db.djelitelj + 1
