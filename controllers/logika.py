@@ -141,7 +141,6 @@ def updateaj_statistiku(igra_db, pobjednicki_tim):
 def pokreni_igru(id_sobe):
     soba = Soba.query.get_or_404(id_sobe)
 
-    #Provjera jesu li sva 4 mjesta popunjena
     if not all([soba.igrac1_id, soba.igrac2_id, soba.igrac3_id, soba.igrac4_id]):
         flash("Nisu sva mjesta popunjena!", "auth_error")
         return redirect(url_for('lobby.ulazak_u_sobu', id_sobe=id_sobe))
@@ -428,8 +427,8 @@ def odigraj_potez():
                 pobjednik = "mi" if igra_db.br_bodova_mi >= igra_db.br_bodova_vi else "vi"
                 updateaj_statistiku(igra_db= igra_db, pobjednicki_tim= pobjednik)
 
-                igra_db.br_bodova_mi = 0
-                igra_db.br_bodova_vi = 0
+                db.session.commit()
+                return jsonify({"status" : "ok", "stanje" : stanje_odgovor, "id_sobe" : igra_db.id_sobe})
 
             novi_djelitelj = 1 if runda_db.djelitelj == 4 else runda_db.djelitelj + 1
             prvi_igra = 1 if novi_djelitelj == 4 else novi_djelitelj + 1
@@ -550,7 +549,8 @@ def stanje_igre(id_igre):
               "rezultat_ukupno" : {"mi" : igra_db.br_bodova_mi, "vi" : igra_db.br_bodova_vi},
               "imena_igraca": imena_igraca,
               "kljuc_tima" : kljuc_tima,
-              "pobjede_ukupno": {"mi": soba_db.pobjede_tim_mi, "vi": soba_db.pobjede_tim_vi }
+              "pobjede_ukupno": {"mi": soba_db.pobjede_tim_mi, "vi": soba_db.pobjede_tim_vi },
+              "id_sobe" : igra_db.id_sobe
               }
     
     return jsonify(stanje)
