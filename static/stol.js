@@ -201,7 +201,7 @@ function odigrajKartu(oznaka) {
             // NADAM SE DA ĆE S OVIME SAD RADITI FREEZE, DAKLE STAVIMO TIMER, JEDNOM KAD ISTEKNE ODBLOKIRAJ SOCKET PA NEKA NAPRAVI ŠTO JE HTIO KADA SMO GA POKRENULI
             setTimeout(() => {
                 freezeAktivan = false;
-                ucitajStanje();
+                // ucitajStanje();
             }, 2000);
         } 
 
