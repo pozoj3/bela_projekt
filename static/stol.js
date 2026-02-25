@@ -31,11 +31,6 @@ function ucitajStanje() {
             let rMi = data.rezultat_runde.mi, rVi = data.rezultat_runde.vi;
             let uMi = data.rezultat_ukupno.mi, uVi = data.rezultat_ukupno.vi;
 
-            if (data.kljuc_tima === 24) {
-                [rMi, rVi] = [rVi, rMi];
-                [uMi, uVi] = [uVi, uMi];
-            }
-
             document.getElementById("mi-runda").innerText = rMi;
             document.getElementById("vi-runda").innerText = rVi;
             document.getElementById("mi-ukupno").innerText = uMi;
@@ -70,13 +65,12 @@ function ucitajStanje() {
                 // Provjera tima: ako je kljuc_tima 24, timovi su (0,2) i (1,3) obrnuto
                 // Pretpostavljamo da backend šalje 'moj_tim_id' ili koristiš logiku (id % 2)
 
-                if (id % 2 === mojId % 2) {
+                if (id === 1 || id === 3) {
                     timMi.push(data.imena_igraca[idStr]);
-                } else {
+                } else if (id === 2 || id === 4) {
                     timVi.push(data.imena_igraca[idStr]);
                 }
             });
-
             // Ažuriraj imena igrača u tablici
             const tablicaTd = document.querySelectorAll(".tablica-timovi td");
             if (tablicaTd.length >= 2) {
