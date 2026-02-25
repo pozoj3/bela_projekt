@@ -147,7 +147,7 @@ def pokreni_igru(id_sobe):
         return redirect(url_for('lobby.ulazak_u_sobu', id_sobe=id_sobe))
     
     if session.get("id_igraca") != soba.igrac1_id:
-        flash("Samo kreator sobe pokrenuti igru.", "auth_error")
+        flash("Samo kreator sobe može pokrenuti igru.", "auth_error")
         return redirect(url_for('lobby.ulazak_u_sobu', id_sobe=id_sobe))
 
     nova_igra = Igra(id_sobe = id_sobe, zadnji_dijelio = 1) 

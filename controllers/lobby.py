@@ -44,7 +44,6 @@ def kreiraj_sobu():
     db.session.commit()
     
 
-    flash(f"Soba {nova_soba.id_sobe} uspješno kreirana!", "lobby_info")
     return redirect(url_for('lobby.ulazak_u_sobu', id_sobe=nova_soba.id_sobe))
 
 
