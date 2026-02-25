@@ -293,6 +293,8 @@ class Runda:
         if pokusna_karta == baba or pokusna_karta == kralj:
             if baba in self.ruke[br_igraca] and kralj in self.ruke[br_igraca]:
                 self.bodovi_zvanja[br_igraca] += 20
+                return True
+        return False
         
         
 
@@ -366,13 +368,13 @@ class Runda:
     def baci_kartu(self, pokusana_karta, br_igraca):
 
         if self.postivanje_boje(pokusana_karta, br_igraca) and self.postivanje_ibera(pokusana_karta, br_igraca) and pokusana_karta in self.ruke[br_igraca] and self.jel_na_redu(br_igraca):
-            #bool_bela = self.jel_ima_belu(br_igraca, pokusana_karta)
+            bool_bela = self.jel_ima_belu(br_igraca, pokusana_karta)
             self.karte_na_stolu.append(pokusana_karta)
             self.bacene_karte[br_igraca].append(pokusana_karta)
             self.ruke[br_igraca].remove(pokusana_karta)
-            return True
+            return True, bool_bela
         
-        return False
+        return False, False
     
 
 
