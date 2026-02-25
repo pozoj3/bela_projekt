@@ -6,7 +6,7 @@ window.onload = function () {
     socket.emit('join', { id_igre: idIgre });
     socket.on('kraj_igre', function(data) {
         alert("Igra je gotova!");
-        window.location.href = "/ulazak_u_sobu/" + data.id_sobe;
+        window.location.href = "/cekaonica/" + data.id_sobe;
     });
     socket.on('osvjezi_stol', function(data) {
         if (freezeAktivan) return;
