@@ -206,7 +206,7 @@ function odigrajKartu(oznaka) {
             setTimeout(() => {
                 freezeAktivan = false;
                 // ucitajStanje();
-            }, 3000);
+            }, 5000);
         } 
 
         else if (data.stanje === "kraj_igre") {
