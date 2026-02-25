@@ -22,7 +22,7 @@ app.register_blueprint(lobby_bp)
 app.register_blueprint(logika_bp)
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app, host = "0.0.0.0", port= 5000, debug=True)
 
 @app.route('/')
 def index():

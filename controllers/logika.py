@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, session, flash, request, jsonify
 import random
+import time
 
 from flask_socketio import emit, join_room
 from app import socketio
@@ -402,6 +403,7 @@ def odigraj_potez():
 
     stanje_odgovor = "karta_bacena"
     if len(logika_runde.karte_na_stolu) == 4:
+        time.sleep(2)
         logika_runde.pokupi_stih()
 
         runda_db.bodovi_mi = logika_runde.bodovi_mi
